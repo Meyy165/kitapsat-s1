@@ -86,13 +86,14 @@
                         <h:panelGroup id="assistantAnswer" layout="block" styleClass="assistant-bubble">
                             #{readingAssistantBean.answer}
                         </h:panelGroup>
-                        <h:inputTextarea value="#{readingAssistantBean.question}"
+                        <h:inputTextarea id="assistantQuestion"
+                                         value="#{readingAssistantBean.question}"
                                          rows="3"
                                          styleClass="form-control assistant-input"/>
                         <h:commandButton value="Sor"
                                          action="#{readingAssistantBean.ask()}"
                                          styleClass="btn btn-dark btn-sm w-100 mt-2">
-                            <f:ajax execute="@form" render="assistantAnswer"/>
+                            <f:ajax execute="@form" render="assistantAnswer assistantQuestion"/>
                         </h:commandButton>
                         <h:link value="Sohbeti aç" outcome="/assistant.xhtml" styleClass="assistant-link"/>
                     </h:form>

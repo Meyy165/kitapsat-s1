@@ -80,7 +80,7 @@ public class ReadingAssistantBean implements Serializable {
     }
 
     private boolean isBookRequest(String clean) {
-        return extractMaxPrice(clean) != null
+        return extractPriceIntent(clean) != null
                 || detectKeyword(clean) != null
                 || containsAny(clean,
                 "kitap", "oku", "okuma", "okuyayim", "okuyayım", "oner", "öner", "tavsiye",
@@ -94,12 +94,12 @@ public class ReadingAssistantBean implements Serializable {
     }
 
     private List<Book> filterBooks(String clean, List<Book> books) {
-        BigDecimal maxPrice = extractMaxPrice(clean);
-        if (maxPrice != null) {
+        PriceIntent priceIntent = extractPriceIntent(clean);
+        if (priceIntent != null) {
             return books.stream()
                     .filter(book -> book.getPrice() != null && book.getStockQuantity() > 0)
-                    .filter(book -> book.getPrice().compareTo(maxPrice) <= 0)
-                    .sorted(Comparator.comparing(Book::getPrice))
+                    .filter(book -> matchesPriceIntent(book.getPrice(), priceIntent))
+                    .sorted(priceComparator(priceIntent))
                     .limit(3)
                     .toList();
         }
@@ -174,7 +174,14 @@ public class ReadingAssistantBean implements Serializable {
         if (matches.isEmpty()) {
             return "";
         }
-        if (extractMaxPrice(clean) != null) {
+        PriceIntent priceIntent = extractPriceIntent(clean);
+        if (priceIntent != null) {
+            if (priceIntent.mode == PriceMode.EXACT) {
+                return priceIntent.price + " TL fiyatındaki kitaplar";
+            }
+            if (priceIntent.mode == PriceMode.AROUND) {
+                return priceIntent.price + " TL civarındaki kitaplar";
+            }
             return "Belirttiğin fiyat aralığına uygun öneriler";
         }
         if (containsAny(clean, "ucuz", "butce", "ekonomik", "fiyat")) {
@@ -235,7 +242,7 @@ public class ReadingAssistantBean implements Serializable {
         return value != null && value.contains(normalize(needle));
     }
 
-    private BigDecimal extractMaxPrice(String clean) {
+    private PriceIntent extractPriceIntent(String clean) {
         if (!containsAny(clean, "tl", "lira", "butce", "butceme", "fiyat", "alti", "altinda", "civari")) {
             return null;
         }
@@ -243,7 +250,33 @@ public class ReadingAssistantBean implements Serializable {
         if (!matcher.find()) {
             return null;
         }
-        return new BigDecimal(matcher.group(1));
+        BigDecimal price = new BigDecimal(matcher.group(1));
+        if (containsAny(clean, "alti", "altinda", "en fazla", "maksimum", "butce", "butceme")) {
+            return new PriceIntent(price, PriceMode.MAX);
+        }
+        if (containsAny(clean, "civari", "yaklasik", "yakın", "yakin")) {
+            return new PriceIntent(price, PriceMode.AROUND);
+        }
+        return new PriceIntent(price, PriceMode.EXACT);
+    }
+
+    private boolean matchesPriceIntent(BigDecimal bookPrice, PriceIntent intent) {
+        if (intent.mode == PriceMode.MAX) {
+            return bookPrice.compareTo(intent.price) <= 0;
+        }
+        if (intent.mode == PriceMode.AROUND) {
+            BigDecimal lower = intent.price.subtract(BigDecimal.TEN);
+            BigDecimal upper = intent.price.add(BigDecimal.TEN);
+            return bookPrice.compareTo(lower) >= 0 && bookPrice.compareTo(upper) <= 0;
+        }
+        return bookPrice.compareTo(intent.price) == 0;
+    }
+
+    private Comparator<Book> priceComparator(PriceIntent intent) {
+        if (intent.mode == PriceMode.AROUND) {
+            return Comparator.comparing(book -> book.getPrice().subtract(intent.price).abs());
+        }
+        return Comparator.comparing(Book::getPrice);
     }
 
     private String normalize(String value) {
@@ -322,6 +355,22 @@ public class ReadingAssistantBean implements Serializable {
 
         public boolean isUser() {
             return user;
+        }
+    }
+
+    private enum PriceMode {
+        EXACT,
+        MAX,
+        AROUND
+    }
+
+    private static class PriceIntent {
+        private final BigDecimal price;
+        private final PriceMode mode;
+
+        private PriceIntent(BigDecimal price, PriceMode mode) {
+            this.price = price;
+            this.mode = mode;
         }
     }
 }
