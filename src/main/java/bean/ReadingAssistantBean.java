@@ -47,6 +47,13 @@ public class ReadingAssistantBean implements Serializable {
         }
 
         addUserMessage(question.trim());
+        if (!isBookRequest(clean)) {
+            answer = "Bunu kitap önerisi olarak anlayamadım. Bana tür, bütçe, yaş grubu veya okuma amacı yazabilirsin. Örneğin: 'polisiye öner', '150 TL altı roman', 'çocuk kitabı öner' ya da 'klasik okumaya nereden başlayayım?'.";
+            addAssistantMessage(answer);
+            question = "";
+            return null;
+        }
+
         List<Book> books = bookFacade.findAll();
         if (books.isEmpty()) {
             answer = "Katalogda henüz kitap bulunmuyor. Kitap eklendiğinde burada öneriler göstereceğim.";
@@ -70,6 +77,15 @@ public class ReadingAssistantBean implements Serializable {
         addAssistantMessage(answer);
         question = "";
         return null;
+    }
+
+    private boolean isBookRequest(String clean) {
+        return extractMaxPrice(clean) != null
+                || detectKeyword(clean) != null
+                || containsAny(clean,
+                "kitap", "oku", "okuma", "okuyayim", "okuyayım", "oner", "öner", "tavsiye",
+                "ucuz", "butce", "butceme", "fiyat", "tl", "lira", "stok", "mevcut",
+                "hediye", "cocuk", "genclik", "yas", "yaş", "baslangic", "başlangıç");
     }
 
     public String chooseOption(String option) {
