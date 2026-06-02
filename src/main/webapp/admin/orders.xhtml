@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="tr"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:ui="jakarta.faces.facelets">
+<ui:composition template="/template.xhtml">
+    <ui:define name="mainContent">
+        <div class="admin-orders">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h2>📦 Sipariş Yönetimi</h2>
+                <div>
+                    <h:link value="← Admin Panel" outcome="/admin/index.xhtml" styleClass="btn" style="background-color: #95a5a6;"/>
+                </div>
+            </div>
+            
+            <div class="orders-table-container" style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <div class="table-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h3>Tüm Siparişler</h3>
+                    <div class="search-filters" style="display: flex; gap: 1rem;">
+                        <h:form style="display: flex; gap: 0.5rem;">
+                            <h:inputText value="#{orderBean.searchKeyword}" 
+                                        placeholder="Sipariş ara..." 
+                                        styleClass="form-control"
+                                        style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;"/>
+                            <h:commandButton value="Ara" 
+                                            action="#{orderBean.searchOrders()}"
+                                            styleClass="btn"
+                                            style="background-color: #3498db; color: white; padding: 0.5rem 1rem; border: none; border-radius: 4px;"/>
+                        </h:form>
+                        <h:form style="display: flex; gap: 0.5rem;">
+                            <h:selectOneMenu value="#{orderBean.statusFilter}" 
+                                            styleClass="form-control"
+                                            style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                                <f:selectItem itemValue="" itemLabel="Tüm Durumlar"/>
+                                <f:selectItems value="#{enumsBean.orderStatusValues}" var="status" itemValue="#{status}" itemLabel="#{status.displayName}"/>
+                            </h:selectOneMenu>
+                            <h:commandButton value="Filtrele" 
+                                            action="#{orderBean.filterByStatus()}"
+                                            styleClass="btn"
+                                            style="background-color: #f39c12; color: white; padding: 0.5rem 1rem; border: none; border-radius: 4px;"/>
+                        </h:form>
+                    </div>
+                </div>
+                
+                <div class="orders-table">
+                    <h:dataTable value="#{orderBean.allOrders}" var="order" 
+                                styleClass="table table-striped"
+                                style="width: 100%; border-collapse: collapse;"
+                                rendered="#{not empty orderBean.allOrders}"
+                                rows="10"
+                                first="#{orderBean.firstRow}">
+                        
+                        <h:column>
+                            <f:facet name="header">Sipariş No</f:facet>
+                            <strong>#{order.orderNumber}</strong>
+                        </h:column>
+                        
+                        <h:column>
+                            <f:facet name="header">Müşteri</f:facet>
+                            #{order.user.name} #{order.user.surname}
+                            <br/>
+                            <small style="color: #666;">#{order.user.email}</small>
+                        </h:column>
+                        
+                        <h:column>
+                            <f:facet name="header">Tarih</f:facet>
+                            #{orderBean.formatLocalDateTime(order.orderDate)}
+                        </h:column>
+                        
+                        <h:column>
+                            <f:facet name="header">Tutar</f:facet>
+                            <strong style="color: #27ae60;">#{order.totalAmount} TL</strong>
+                        </h:column>
+                        
+                        <h:column>
+                            <f:facet name="header">Durum</f:facet>
+                            <span style="background-color: #{order.status == 'PENDING' ? '#f39c12' : order.status == 'PROCESSING' ? '#3498db' : order.status == 'SHIPPED' ? '#9b59b6' : order.status == 'DELIVERED' ? '#27ae60' : order.status == 'CANCELLED' ? '#e74c3c' : '#95a5a6'}; 
+                                       color: white; padding: 0.3rem 0.6rem; border-radius: 4px; font-size: 0.8rem;">
+                                #{order.status.displayName}
+                            </span>
+                        </h:column>
+                        
+                        <h:column>
+                            <f:facet name="header">İşlemler</f:facet>
+                            <div style="display: flex; gap: 0.3rem; flex-wrap: wrap;">
+                                <h:form>
+                                    <h:commandButton value="Görüntüle" 
+                                                     action="#{orderBean.viewOrder(order)}"
+                                                     styleClass="btn"
+                                                     style="background-color: #3498db; color: white; padding: 0.3rem 0.6rem; border: none; border-radius: 3px; font-size: 0.8rem;"/>
+                                </h:form>
+                                <h:form>
+                                    <h:commandButton value="Sil" 
+                                                     action="#{orderBean.deleteOrder(order.id)}"
+                                                     onclick="return confirm('Bu siparişi silmek istediğinizden emin misiniz?')"
+                                                     styleClass="btn"
+                                                     style="background-color: #e74c3c; color: white; padding: 0.3rem 0.6rem; border: none; border-radius: 3px; font-size: 0.8rem;"/>
+                                </h:form>
+                            </div>
+                        </h:column>
+                    </h:dataTable>
+                    
+                    <h:panelGroup rendered="#{empty orderBean.allOrders}">
+                        <div style="text-align: center; padding: 3rem; color: #666;">
+                            <h4>📭 Sipariş bulunamadı</h4>
+                            <p>Sistemde kayıtlı sipariş bulunmamaktadır.</p>
+                        </div>
+                    </h:panelGroup>
+                </div>
+                
+                <!-- Pagination -->
+                <div style="margin-top: 1.5rem; text-align: center;" rendered="#{not empty orderBean.allOrders and orderBean.allOrders.size() > 10}">
+                    <h:form style="display: inline-flex; gap: 0.5rem;">
+                        <h:commandButton value="←" 
+                                         action="#{orderBean.previousPage()}"
+                                         disabled="#{orderBean.firstRow == 0}"
+                                         styleClass="btn"/>
+                        <span style="padding: 0.5rem 1rem;">
+                            #{orderBean.firstRow + 1} - #{orderBean.firstRow + 10 > orderBean.allOrders.size() ? orderBean.allOrders.size() : orderBean.firstRow + 10} / #{orderBean.allOrders.size()}
+                        </span>
+                        <h:commandButton value="→" 
+                                         action="#{orderBean.nextPage()}"
+                                         disabled="#{orderBean.firstRow + 10 >= orderBean.allOrders.size()}"
+                                         styleClass="btn"/>
+                    </h:form>
+                </div>
+            </div>
+            
+            <!-- Order Details Section -->
+            <h:panelGroup rendered="#{orderBean.selectedOrder != null and orderBean.selectedOrder.id != null}">
+                <div style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-top: 2rem;">
+                    <h3>Sipariş Detayları</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 1rem;">
+                        <div>
+                            <p><strong>Sipariş No:</strong> #{orderBean.selectedOrder.orderNumber}</p>
+                            <p><strong>Müşteri:</strong> #{orderBean.selectedOrder.user.name} #{orderBean.selectedOrder.user.surname}</p>
+                            <p><strong>E-posta:</strong> #{orderBean.selectedOrder.user.email}</p>
+                            <p><strong>Telefon:</strong> #{orderBean.selectedOrder.user.phone != null ? orderBean.selectedOrder.user.phone : '-'}</p>
+                        </div>
+                        <div>
+                            <p><strong>Teslimat Adresi:</strong> #{orderBean.selectedOrder.shippingAddress}</p>
+                            <p><strong>Sipariş Tarihi:</strong> #{orderBean.formatLocalDateTime(orderBean.selectedOrder.orderDate)}</p>
+                            <p><strong>Toplam Tutar:</strong> #{orderBean.selectedOrder.totalAmount} TL</p>
+                            <h:form style="margin-top: 1rem;">
+                                <h:panelGroup rendered="#{orderBean.selectedOrder.status != enums.OrderStatus.DELIVERED and orderBean.selectedOrder.status != enums.OrderStatus.CANCELLED}">
+                                    <h:selectOneMenu value="#{orderBean.selectedOrder.status}" 
+                                                    styleClass="form-control"
+                                                    style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; margin-right: 0.5rem;">
+                                        <f:selectItems value="#{enumsBean.orderStatusValues}" var="status" itemValue="#{status}" itemLabel="#{status.displayName}"/>
+                                    </h:selectOneMenu>
+                                    <h:commandButton value="Durumu Güncelle" 
+                                                    action="#{orderBean.updateOrderStatus()}"
+                                                    styleClass="btn"
+                                                    style="background-color: #27ae60; color: white; padding: 0.5rem 1rem; border: none; border-radius: 4px;"/>
+                                </h:panelGroup>
+                            </h:form>
+                        </div>
+                    </div>
+                    
+                    <!-- Order Items -->
+                    <h:panelGroup rendered="#{orderBean.selectedOrder.orderItems != null and not empty orderBean.selectedOrder.orderItems}">
+                        <h4>Sipariş Ürünleri</h4>
+                        <h:dataTable value="#{orderBean.selectedOrder.orderItems}" var="item"
+                                    styleClass="table table-striped"
+                                    style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
+                            <h:column>
+                                <f:facet name="header">Kitap</f:facet>
+                                #{item.book.title}
+                            </h:column>
+                            <h:column>
+                                <f:facet name="header">Yazar</f:facet>
+                                #{orderBean.getAuthorsString(item.book.authors)}
+                            </h:column>
+                            <h:column>
+                                <f:facet name="header">Adet</f:facet>
+                                #{item.quantity}
+                            </h:column>
+                            <h:column>
+                                <f:facet name="header">Birim Fiyat</f:facet>
+                                #{item.unitPrice} TL
+                            </h:column>
+                            <h:column>
+                                <f:facet name="header">Toplam</f:facet>
+                                #{item.totalPrice} TL
+                            </h:column>
+                        </h:dataTable>
+                    </h:panelGroup>
+                </div>
+            </h:panelGroup>
+        </div>
+    </ui:define>
+</ui:composition>
+</html>

@@ -1,0 +1,100 @@
+<ui:composition template="/template.xhtml"
+                xmlns:ui="jakarta.faces.facelets"
+                xmlns:h="jakarta.faces.html"
+                xmlns:f="jakarta.faces.core">
+    <ui:define name="mainContent">
+        <div class="cart-container" style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            <h2>🛒 Alışveriş Sepeti</h2>
+            
+            <ui:fragment rendered="#{empty cartBean.cartItems}">
+                <div style="text-align: center; padding: 3rem; background: #f8f9fa; border-radius: 8px;">
+                    <h3>Sepetiniz Boş</h3>
+                    <p>Sepetinizde henüz ürün bulunmuyor.</p>
+                    <h:link value="Alışverişe Devam Et" outcome="/index.xhtml" styleClass="btn btn-primary"/>
+                </div>
+            </ui:fragment>
+            
+            <ui:fragment rendered="#{not empty cartBean.cartItems}">
+                <div class="cart-items">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="border-bottom: 2px solid #34495e;">
+                                <th style="padding: 1rem; text-align: left;">Kitap</th>
+                                <th style="padding: 1rem; text-align: center;">Adet</th>
+                                <th style="padding: 1rem; text-align: right;">Birim Fiyat</th>
+                                <th style="padding: 1rem; text-align: right;">Toplam</th>
+                                <th style="padding: 1rem; text-align: center;">İşlem</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <ui:repeat value="#{cartBean.cartItems}" var="item">
+                                <tr style="border-bottom: 1px solid #ddd;">
+                                    <td style="padding: 1rem;">
+                                        <div style="font-weight: bold;">#{item.book.title}</div>
+                                        <div style="font-size: 0.9rem; color: #666;">
+                                            <ui:repeat value="#{item.book.authors}" var="author">
+                                                #{author.name} #{author.surname}
+                                            </ui:repeat>
+                                        </div>
+                                    </td>
+                                    <td style="padding: 1rem; text-align: center;">
+                                        <h:form style="display: inline;">
+                                            <h:inputText value="#{item.quantity}" 
+                                                        size="3" 
+                                                        style="text-align: center;"
+                                                        onchange="submit()">
+                                                <f:ajax event="change" 
+                                                       listener="#{cartBean.updateQuantity(item.book.id, item.quantity)}"
+                                                       render="@form"/>
+                                            </h:inputText>
+                                        </h:form>
+                                    </td>
+                                    <td style="padding: 1rem; text-align: right;">#{item.unitPrice} TL</td>
+                                    <td style="padding: 1rem; text-align: right; font-weight: bold;">#{item.totalPrice} TL</td>
+                                    <td style="padding: 1rem; text-align: center;">
+                                        <h:form style="display: inline;">
+                                            <h:commandButton value="Sil" 
+                                                           action="#{cartBean.removeFromCart(item.book.id)}"
+                                                           styleClass="btn btn-danger"
+                                                           style="padding: 0.3rem 0.8rem; font-size: 0.9rem;"/>
+                                        </h:form>
+                                    </td>
+                                </tr>
+                            </ui:repeat>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="cart-summary" style="margin-top: 2rem; padding: 1.5rem; background: #f8f9fa; border-radius: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h:form style="display: inline;">
+                                <h:commandButton value="Sepeti Temizle" 
+                                               action="#{cartBean.clearCart()}"
+                                               styleClass="btn"
+                                               style="background-color: #e74c3c; color: white;"/>
+                            </h:form>
+                            <h:link value="Alışverişe Devam Et" 
+                                   outcome="/index.xhtml" 
+                                   styleClass="btn"
+                                   style="margin-left: 1rem;"/>
+                        </div>
+                        
+                        <div style="text-align: right;">
+                            <div style="font-size: 1.2rem; margin-bottom: 1rem;">
+                                <strong>Toplam Tutar: </strong>
+                                <span style="color: #27ae60; font-size: 1.5rem;">#{cartBean.cartTotal} TL</span>
+                            </div>
+                            <h:form>
+                                <h:commandButton value="Ödemeye Geç" 
+                                               action="#{cartBean.checkout()}"
+                                               styleClass="btn btn-success"
+                                               style="font-size: 1.1rem; padding: 0.8rem 2rem;"/>
+                            </h:form>
+                        </div>
+                    </div>
+                </div>
+            </ui:fragment>
+        </div>
+    </ui:define>
+</ui:composition>

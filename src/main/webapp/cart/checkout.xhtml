@@ -1,0 +1,128 @@
+<ui:composition template="/template.xhtml"
+                xmlns:ui="jakarta.faces.facelets"
+                xmlns:h="jakarta.faces.html"
+                xmlns:f="jakarta.faces.core">
+    <ui:define name="mainContent">
+        <div class="checkout-container" style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            <h2>💳 Ödeme Sayfası</h2>
+            
+            <!-- Hata mesajları için -->
+            <h:messages id="messages" styleClass="messages" 
+                       style="margin-bottom: 1rem;"
+                       errorStyle="color: #e74c3c; background: #fdf2f2; padding: 1rem; border-radius: 4px; border: 1px solid #f5c6cb;"
+                       infoStyle="color: #27ae60; background: #f0f9f4; padding: 1rem; border-radius: 4px; border: 1px solid #c3e6cb;"
+                       warnStyle="color: #f39c12; background: #fef9e7; padding: 1rem; border-radius: 4px; border: 1px solid #ffeaa7;"/>
+            
+            <div class="checkout-content" style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                <!-- Sipariş Özeti -->
+                <div class="order-summary" style="padding: 1.5rem; background: #f8f9fa; border-radius: 8px;">
+                    <h3>Sipariş Özeti</h3>
+                    
+                    <div class="cart-items" style="margin-bottom: 1.5rem;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="border-bottom: 1px solid #ddd;">
+                                    <th style="padding: 0.5rem; text-align: left;">Kitap</th>
+                                    <th style="padding: 0.5rem; text-align: center;">Adet</th>
+                                    <th style="padding: 0.5rem; text-align: right;">Toplam</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <ui:repeat value="#{cartBean.cartItems}" var="item">
+                                    <tr style="border-bottom: 1px solid #eee;">
+                                        <td style="padding: 0.5rem;">
+                                            <div style="font-size: 0.9rem;">#{item.book.title}</div>
+                                        </td>
+                                        <td style="padding: 0.5rem; text-align: center;">#{item.quantity}</td>
+                                        <td style="padding: 0.5rem; text-align: right;">#{item.totalPrice} TL</td>
+                                    </tr>
+                                </ui:repeat>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="total-section" style="border-top: 2px solid #34495e; padding-top: 1rem;">
+                        <div style="display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: bold;">
+                            <span>Toplam Tutar:</span>
+                            <span style="color: #27ae60;">#{cartBean.cartTotal} TL</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Ödeme Formu -->
+                <div class="payment-form" style="padding: 1.5rem; border: 1px solid #ddd; border-radius: 8px;">
+                    <h3>Ödeme Bilgileri</h3>
+                    
+                    <h:form id="paymentForm">
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label for="cardNumber" style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Kart Numarası</label>
+                            <h:inputText id="cardNumber" 
+                                        value="#{paymentBean.cardNumber}"
+                                        style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;"
+                                        maxlength="16"
+                                        placeholder="1234 5678 9012 3456"/>
+                        </div>
+                        
+                        <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                            <div class="form-group">
+                                <label for="expiryMonth" style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Son Kullanma Ay</label>
+                                <h:selectOneMenu id="expiryMonth" 
+                                                value="#{paymentBean.expiryMonth}"
+                                                style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                                    <f:selectItem itemValue="" itemLabel="Ay"/>
+                                    <f:selectItem itemValue="01" itemLabel="01"/>
+                                    <f:selectItem itemValue="02" itemLabel="02"/>
+                                    <f:selectItem itemValue="03" itemLabel="03"/>
+                                    <f:selectItem itemValue="04" itemLabel="04"/>
+                                    <f:selectItem itemValue="05" itemLabel="05"/>
+                                    <f:selectItem itemValue="06" itemLabel="06"/>
+                                    <f:selectItem itemValue="07" itemLabel="07"/>
+                                    <f:selectItem itemValue="08" itemLabel="08"/>
+                                    <f:selectItem itemValue="09" itemLabel="09"/>
+                                    <f:selectItem itemValue="10" itemLabel="10"/>
+                                    <f:selectItem itemValue="11" itemLabel="11"/>
+                                    <f:selectItem itemValue="12" itemLabel="12"/>
+                                </h:selectOneMenu>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="expiryYear" style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Son Kullanma Yıl</label>
+                                <h:selectOneMenu id="expiryYear" 
+                                                value="#{paymentBean.expiryYear}"
+                                                style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                                    <f:selectItem itemValue="" itemLabel="Yıl"/>
+                                    <f:selectItem itemValue="2026" itemLabel="2026"/>
+                                    <f:selectItem itemValue="2027" itemLabel="2027"/>
+                                    <f:selectItem itemValue="2028" itemLabel="2028"/>
+                                    <f:selectItem itemValue="2029" itemLabel="2029"/>
+                                    <f:selectItem itemValue="2030" itemLabel="2030"/>
+                                </h:selectOneMenu>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group" style="margin-bottom: 1.5rem;">
+                            <label for="cvv" style="display: block; margin-bottom: 0.5rem; font-weight: bold;">CVV</label>
+                            <h:inputText id="cvv" 
+                                        value="#{paymentBean.cvv}"
+                                        style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;"
+                                        maxlength="3"
+                                        placeholder="123"/>
+                        </div>
+                        
+                        <div class="form-actions" style="display: flex; gap: 1rem;">
+                            <h:commandButton value="Ödemeyi Tamamla" 
+                                           action="#{paymentBean.processPayment()}"
+                                           styleClass="btn btn-success"
+                                           style="flex: 1; padding: 0.8rem; font-size: 1.1rem;"/>
+                            
+                            <h:link value="İptal" 
+                                   outcome="/cart/view.xhtml" 
+                                   styleClass="btn"
+                                   style="background-color: #e74c3c; color: white; padding: 0.8rem 2rem;"/>
+                        </div>
+                    </h:form>
+                </div>
+            </div>
+        </div>
+    </ui:define>
+</ui:composition>

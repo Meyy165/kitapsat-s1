@@ -1,0 +1,89 @@
+<ui:composition template="/template.xhtml"
+                xmlns:ui="jakarta.faces.facelets"
+                xmlns:h="jakarta.faces.html"
+                xmlns:f="jakarta.faces.core">
+    <ui:define name="mainContent">
+        <div class="books-management" style="max-width: 1400px; margin: 0 auto; background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 2px solid #f0f0f0;">
+                <h2 style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin: 0; font-size: 2rem; font-weight: bold;">📚 Kitap Yönetimi</h2>
+                <h:link value="➕ Yeni Kitap Ekle" outcome="/admin/add-book.xhtml" 
+                        style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 0.8rem 1.5rem; border-radius: 25px; text-decoration: none; font-weight: bold; box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);"/>
+            </div>
+
+            <!-- Arama Formu -->
+            <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+                <h:form style="display: flex; gap: 1rem; align-items: center;">
+                    <label style="font-weight: 600; color: #495057;">🔍 Kitap Ara:</label>
+                    <h:inputText value="#{bookBean.searchKeyword}" styleClass="form-control" 
+                                placeholder="Kitap adı, ISBN veya açıklama ile ara..."
+                                style="flex: 1; padding: 0.8rem; border: 2px solid #e9ecef; border-radius: 8px; font-size: 1rem;"/>
+                    <h:commandButton value="Ara" action="#{bookBean.searchBooks()}" 
+                                   style="background: #667eea; color: white; border: none; padding: 0.8rem 1.5rem; border-radius: 8px; font-weight: bold; cursor: pointer;"/>
+                    <h:commandButton value="Temizle" action="#{bookBean.resetSearch()}" 
+                                   style="background: #6c757d; color: white; border: none; padding: 0.8rem 1.5rem; border-radius: 8px; font-weight: bold; cursor: pointer;"/>
+                </h:form>
+            </div>
+
+            <h:form>
+                <div class="books-table" style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
+                        <thead>
+                            <tr style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
+                                <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #dee2e6; font-weight: 600; color: #495057;">ID</th>
+                                <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #dee2e6; font-weight: 600; color: #495057;">Kitap Adı</th>
+                                <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #dee2e6; font-weight: 600; color: #495057;">ISBN</th>
+                                <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #dee2e6; font-weight: 600; color: #495057;">Yazarlar</th>
+                                <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #dee2e6; font-weight: 600; color: #495057;">Yayınevi</th>
+                                <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #dee2e6; font-weight: 600; color: #495057;">Fiyat</th>
+                                <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #dee2e6; font-weight: 600; color: #495057;">Stok</th>
+                                <th style="padding: 1rem; text-align: center; border-bottom: 2px solid #dee2e6; font-weight: 600; color: #495057;">İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <ui:repeat value="#{bookBean.allBooks}" var="book">
+                                <tr style="border-bottom: 1px solid #f0f0f0; transition: background-color 0.3s ease;" 
+                                    onmouseover="this.style.backgroundColor='#f8f9fa'" 
+                                    onmouseout="this.style.backgroundColor='white'">
+                                    <td style="padding: 1rem; color: #6c757d;">#{book.id}</td>
+                                    <td style="padding: 1rem; font-weight: 500; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                        #{book.title}
+                                    </td>
+                                    <td style="padding: 1rem; color: #6c757d;">#{book.isbn}</td>
+                                    <td style="padding: 1rem; color: #6c757d; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                        <ui:repeat value="#{book.authors}" var="author" varStatus="status">
+                                            #{author.name} #{author.surname}#{!status.last ? ', ' : ''}
+                                        </ui:repeat>
+                                    </td>
+                                    <td style="padding: 1rem; color: #6c757d;">#{book.publisher != null ? book.publisher.name : '-'}</td>
+                                    <td style="padding: 1rem; color: #28a745; font-weight: 600;">#{book.price} TL</td>
+                                    <td style="padding: 1rem; color: #{book.stockQuantity > 0 ? '#28a745' : '#dc3545'}; font-weight: 600;">
+                                        #{book.stockQuantity}
+                                    </td>
+                                    <td style="padding: 1rem; text-align: center;">
+                                        <h:link value="✏️" outcome="/admin/edit-book.xhtml" 
+                                                   style="color: #007bff; text-decoration: none; margin-right: 1rem; font-size: 1.2rem;"
+                                                   title="Düzenle">
+                                            <f:param name="id" value="#{book.id}"/>
+                                        </h:link>
+                                        <h:commandLink value="🗑️" action="#{bookBean.deleteBook(book.id)}" 
+                                                     style="color: #dc3545; text-decoration: none; margin-left: 1rem; font-size: 1.2rem;"
+                                                     title="Sil"
+                                                     onclick="return confirm('Bu kitabı silmek istediğinizden emin misiniz?');"/>
+                                    </td>
+                                </tr>
+                            </ui:repeat>
+                        </tbody>
+                    </table>
+                    
+                    <ui:fragment rendered="#{empty bookBean.allBooks}">
+                        <div style="text-align: center; padding: 3rem; color: #6c757d;">
+                            <div style="font-size: 3rem; margin-bottom: 1rem;">📚</div>
+                            <h3>Henüz kitap bulunmuyor</h3>
+                            <p>İlk kitabı eklemek için yukarıdaki "Yeni Kitap Ekle" butonuna tıklayın.</p>
+                        </div>
+                    </ui:fragment>
+                </div>
+            </h:form>
+        </div>
+    </ui:define>
+</ui:composition>

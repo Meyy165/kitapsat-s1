@@ -1,0 +1,53 @@
+<ui:composition template="/template.xhtml"
+                xmlns:ui="jakarta.faces.facelets"
+                xmlns:h="jakarta.faces.html"
+                xmlns:f="jakarta.faces.core">
+    <ui:define name="mainContent">
+        <section class="container content-section">
+            <div class="chat-shell">
+                <div class="chat-head">
+                    <div>
+                        <p class="eyebrow dark">Rafine Asistan</p>
+                        <h1>Kitap sohbeti</h1>
+                    </div>
+                    <span class="chat-status">Katalogdan cevaplar</span>
+                </div>
+
+                <h:form id="assistantForm" styleClass="chat-form">
+                    <h:panelGroup id="assistantChat" layout="block" styleClass="chat-window">
+                        <ui:repeat value="#{readingAssistantBean.messages}" var="message">
+                            <div class="#{message.user ? 'chat-row chat-row-user' : 'chat-row'}">
+                                <div class="#{message.user ? 'chat-bubble chat-bubble-user' : 'chat-bubble chat-bubble-assistant'}">
+                                    <h:outputText value="#{message.text}" escape="true" styleClass="chat-text"/>
+                                </div>
+                            </div>
+                        </ui:repeat>
+
+                        <div class="chat-options">
+                            <ui:repeat value="#{readingAssistantBean.quickOptions}" var="option">
+                                <h:commandButton value="#{option}"
+                                                 action="#{readingAssistantBean.chooseOption(option)}"
+                                                 styleClass="chat-option">
+                                    <f:ajax execute="@this" render="assistantChat question"/>
+                                </h:commandButton>
+                            </ui:repeat>
+                        </div>
+                    </h:panelGroup>
+
+                    <div class="chat-inputbar">
+                        <h:inputTextarea id="question"
+                                         value="#{readingAssistantBean.question}"
+                                         rows="2"
+                                         styleClass="form-control chat-input"
+                                         required="true"/>
+                        <h:commandButton value="Gönder"
+                                         action="#{readingAssistantBean.ask()}"
+                                         styleClass="btn btn-dark chat-send">
+                            <f:ajax execute="@form" render="assistantChat question"/>
+                        </h:commandButton>
+                    </div>
+                </h:form>
+            </div>
+        </section>
+    </ui:define>
+</ui:composition>

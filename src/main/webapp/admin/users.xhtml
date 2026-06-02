@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="tr"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:ui="jakarta.faces.facelets">
+<ui:composition template="/template.xhtml">
+    <ui:define name="mainContent">
+        <div class="admin-users">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h2>👥 Kullanıcı Yönetimi</h2>
+                <div>
+                    <h:link value="← Admin Panel" outcome="/admin/index.xhtml" styleClass="btn" style="background-color: #95a5a6;"/>
+                </div>
+            </div>
+            
+            <div class="users-table-container" style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <div class="table-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h3>Tüm Kullanıcılar</h3>
+                    <div class="search-box">
+                        <h:form style="display: flex; gap: 0.5rem;">
+                            <h:inputText value="#{userBean.searchKeyword}" 
+                                        placeholder="Kullanıcı ara..." 
+                                        styleClass="form-control"
+                                        style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;"/>
+                            <h:commandButton value="Ara" 
+                                            action="#{userBean.searchUsers()}"
+                                            styleClass="btn"
+                                            style="background-color: #3498db; color: white; padding: 0.5rem 1rem; border: none; border-radius: 4px;"/>
+                        </h:form>
+                    </div>
+                </div>
+                
+                <div class="users-table">
+                    <h:dataTable value="#{userBean.allUsers}" var="user" 
+                                styleClass="table table-striped"
+                                style="width: 100%; border-collapse: collapse;"
+                                rendered="#{not empty userBean.allUsers}"
+                                rows="10"
+                                first="#{userBean.firstRow}">
+                        
+                        <h:column>
+                            <f:facet name="header">ID</f:facet>
+                            #{user.id}
+                        </h:column>
+                        
+                        <h:column>
+                            <f:facet name="header">Ad Soyad</f:facet>
+                            #{user.name} #{user.surname}
+                        </h:column>
+                        
+                        <h:column>
+                            <f:facet name="header">E-posta</f:facet>
+                            #{user.email}
+                        </h:column>
+                        
+                        <h:column>
+                            <f:facet name="header">Telefon</f:facet>
+                            #{user.phone != null ? user.phone : '-'}
+                        </h:column>
+                        
+                        <h:column>
+                            <f:facet name="header">Rol</f:facet>
+                            <span style="background-color: #{user.admin ? '#e74c3c' : '#3498db'}; 
+                                       color: white; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">
+                                #{user.role}
+                            </span>
+                        </h:column>
+                        
+                        <h:column>
+                            <f:facet name="header">İşlemler</f:facet>
+                            <h:form>
+                                <h:commandButton value="Sil" 
+                                                 action="#{userBean.deleteUser(user.id)}"
+                                                 onclick="return confirm('Bu kullanıcıyı silmek istediğinizden emin misiniz?')"
+                                                 styleClass="btn"
+                                                 style="background-color: #e74c3c; color: white; padding: 0.3rem 0.6rem; border: none; border-radius: 3px; font-size: 0.8rem;"
+                                                 rendered="#{not user.admin}"/>
+                            </h:form>
+                        </h:column>
+                    </h:dataTable>
+                    
+                    <h:panelGroup rendered="#{empty userBean.allUsers}">
+                        <div style="text-align: center; padding: 3rem; color: #666;">
+                            <h4>📭 Kullanıcı bulunamadı</h4>
+                            <p>Sistemde kayıtlı kullanıcı bulunmamaktadır.</p>
+                        </div>
+                    </h:panelGroup>
+                </div>
+                
+                <!-- Pagination -->
+                <div style="margin-top: 1.5rem; text-align: center;" rendered="#{not empty userBean.allUsers and userBean.allUsers.size() > 10}">
+                    <h:form style="display: inline-flex; gap: 0.5rem;">
+                        <h:commandButton value="←" 
+                                         action="#{userBean.previousPage()}"
+                                         disabled="#{userBean.firstRow == 0}"
+                                         styleClass="btn"/>
+                        <span style="padding: 0.5rem 1rem;">
+                            #{userBean.firstRow + 1} - #{userBean.firstRow + 10 > userBean.allUsers.size() ? userBean.allUsers.size() : userBean.firstRow + 10} / #{userBean.allUsers.size()}
+                        </span>
+                        <h:commandButton value="→" 
+                                         action="#{userBean.nextPage()}"
+                                         disabled="#{userBean.firstRow + 10 >= userBean.allUsers.size()}"
+                                         styleClass="btn"/>
+                    </h:form>
+                </div>
+            </div>
+        </div>
+    </ui:define>
+</ui:composition>
+</html>

@@ -1,0 +1,41 @@
+<ui:composition template="/template.xhtml"
+                xmlns:ui="jakarta.faces.facelets"
+                xmlns:h="jakarta.faces.html"
+                xmlns:f="jakarta.faces.core">
+    <ui:define name="mainContent">
+        <div style="max-width: 700px; margin: 0 auto; background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            <h2 style="margin-top: 0; color: #2c3e50;">Yeni Yorum Ekle</h2>
+
+            <h:form>
+                <div class="form-group">
+                    <label>Kitap *</label>
+                    <h:selectOneMenu value="#{reviewBean.selectedBookId}" required="true" style="width: 100%; padding: 0.5rem;">
+                        <f:selectItem itemLabel="Kitap seciniz" itemValue="#{null}" noSelectionOption="true"/>
+                        <f:selectItems value="#{reviewBean.books}" var="book" itemValue="#{book.id}" itemLabel="#{book.title}"/>
+                    </h:selectOneMenu>
+                </div>
+
+                <div class="form-group">
+                    <label>Kullanici *</label>
+                    <h:selectOneMenu value="#{reviewBean.selectedUserId}" required="true" style="width: 100%; padding: 0.5rem;">
+                        <f:selectItem itemLabel="Kullanici seciniz" itemValue="#{null}" noSelectionOption="true"/>
+                        <f:selectItems value="#{reviewBean.users}" var="user" itemValue="#{user.id}" itemLabel="#{user.name} #{user.surname}"/>
+                    </h:selectOneMenu>
+                </div>
+
+                <div class="form-group">
+                    <label>Puan *</label>
+                    <h:inputText value="#{reviewBean.review.rating}" required="true" style="width: 100%; padding: 0.5rem;"/>
+                </div>
+
+                <div class="form-group">
+                    <label>Yorum</label>
+                    <h:inputTextarea value="#{reviewBean.review.comment}" rows="5" style="width: 100%; padding: 0.5rem;"/>
+                </div>
+
+                <h:commandButton value="Kaydet" action="#{reviewBean.addReview()}" styleClass="btn btn-success"/>
+                <h:link value="Iptal" outcome="/admin/reviews.xhtml" styleClass="btn" style="margin-left: 0.5rem;"/>
+            </h:form>
+        </div>
+    </ui:define>
+</ui:composition>

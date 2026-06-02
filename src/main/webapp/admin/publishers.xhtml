@@ -1,0 +1,61 @@
+<ui:composition template="/template.xhtml"
+                xmlns:ui="jakarta.faces.facelets"
+                xmlns:h="jakarta.faces.html"
+                xmlns:f="jakarta.faces.core">
+    <ui:define name="mainContent">
+        <div class="publishers-management" style="max-width: 1200px; margin: 0 auto; background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 2px solid #f0f0f0;">
+                <h2 style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin: 0; font-size: 2rem; font-weight: bold;">🏢 Yayınevi Yönetimi</h2>
+                <h:link value="➕ Yeni Yayınevi Ekle" outcome="/admin/add-publisher.xhtml" 
+                        style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 0.8rem 1.5rem; border-radius: 25px; text-decoration: none; font-weight: bold; box-shadow: 0 2px 4px rgba(240, 147, 251, 0.3);"/>
+            </div>
+
+            <h:form>
+                <div class="publishers-table" style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
+                        <thead>
+                            <tr style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
+                                <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #dee2e6; font-weight: 600; color: #495057;">ID</th>
+                                <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #dee2e6; font-weight: 600; color: #495057;">Yayınevi Adı</th>
+                                <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #dee2e6; font-weight: 600; color: #495057;">Telefon</th>
+                                <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #dee2e6; font-weight: 600; color: #495057;">E-posta</th>
+                                <th style="padding: 1rem; text-align: center; border-bottom: 2px solid #dee2e6; font-weight: 600; color: #495057;">İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <ui:repeat value="#{publisherBean.allPublishers}" var="publisher">
+                                <tr style="border-bottom: 1px solid #f0f0f0; transition: background-color 0.3s ease;" 
+                                    onmouseover="this.style.backgroundColor='#f8f9fa'" 
+                                    onmouseout="this.style.backgroundColor='white'">
+                                    <td style="padding: 1rem; color: #6c757d;">#{publisher.id}</td>
+                                    <td style="padding: 1rem; font-weight: 500;">#{publisher.name}</td>
+                                    <td style="padding: 1rem; color: #6c757d;">#{publisher.phone != null ? publisher.phone : '-'}</td>
+                                    <td style="padding: 1rem; color: #6c757d;">#{publisher.email != null ? publisher.email : '-'}</td>
+                                    <td style="padding: 1rem; text-align: center;">
+                                        <h:link value="✏️" outcome="/admin/edit-publisher.xhtml" 
+                       style="color: #007bff; text-decoration: none; margin-right: 1rem; font-size: 1.2rem;"
+                       title="Düzenle">
+                        <f:param name="id" value="#{publisher.id}"/>
+                    </h:link>
+                                        <h:commandLink value="🗑️" action="#{publisherBean.deletePublisher(publisher.id)}" 
+                                                     style="color: #dc3545; text-decoration: none; margin-left: 1rem; font-size: 1.2rem;"
+                                                     title="Sil"
+                                                     onclick="return confirm('Bu yayınevini silmek istediğinizden emin misiniz?');"/>
+                                    </td>
+                                </tr>
+                            </ui:repeat>
+                        </tbody>
+                    </table>
+                    
+                    <ui:fragment rendered="#{empty publisherBean.allPublishers}">
+                        <div style="text-align: center; padding: 3rem; color: #6c757d;">
+                            <div style="font-size: 3rem; margin-bottom: 1rem;">🏢</div>
+                            <h3>Henüz yayınevi bulunmuyor</h3>
+                            <p>İlk yayınevini eklemek için yukarıdaki "Yeni Yayınevi Ekle" butonuna tıklayın.</p>
+                        </div>
+                    </ui:fragment>
+                </div>
+            </h:form>
+        </div>
+    </ui:define>
+</ui:composition>

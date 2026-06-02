@@ -1,0 +1,88 @@
+<ui:composition template="/template.xhtml"
+                xmlns:ui="jakarta.faces.facelets"
+                xmlns:h="jakarta.faces.html"
+                xmlns:f="jakarta.faces.core"
+                xmlns:pt="jakarta.faces.passthrough">
+    <ui:define name="mainContent">
+        <section class="catalog-header">
+            <div class="container">
+                <p class="eyebrow dark">Katalog</p>
+                <div class="catalog-headline">
+                    <div>
+                        <h1>Kitap Katalo&#287;u</h1>
+                        <p>Yazar, kategori, stok ve fiyat bilgileriyle t&#252;m kitaplar&#305; inceleyin.</p>
+                    </div>
+                    <h:form id="searchForm" styleClass="catalog-search">
+                        <div class="input-group">
+                            <h:inputText id="searchInput"
+                                         value="#{bookBean.searchKeyword}"
+                                         pt:placeholder="Kitap, ISBN veya a&#231;&#305;klama ara"
+                                         autocomplete="off"
+                                         styleClass="form-control">
+                                <f:ajax event="keyup" listener="#{bookBean.searchBooks()}" render="booksPanel"/>
+                            </h:inputText>
+                            <h:commandButton value="Temizle" action="#{bookBean.resetSearch()}" styleClass="btn btn-outline-secondary">
+                                <f:ajax render="booksPanel searchInput"/>
+                            </h:commandButton>
+                        </div>
+                    </h:form>
+                </div>
+            </div>
+        </section>
+
+        <section class="container content-section pt-0">
+            <h:messages globalOnly="true" styleClass="alert alert-info"/>
+
+            <h:panelGroup id="booksPanel" layout="block">
+                <div class="book-grid">
+                    <ui:repeat value="#{bookBean.allBooks}" var="book">
+                        <article class="book-card">
+                            <img class="book-cover" src="#{book.imageUrl}" alt="#{book.title}"
+                                 onerror="this.onerror=null;this.src='https://placehold.co/300x420/172554/ffffff?text=Rafine+Kitap';"/>
+                            <div class="book-card-body">
+                                <h2 class="book-title">#{book.title}</h2>
+                                <div class="book-author">
+                                    <ui:repeat value="#{book.authors}" var="author" varStatus="status">
+                                        #{author.name} #{author.surname}#{not status.last ? ', ' : ''}
+                                    </ui:repeat>
+                                </div>
+                                <div class="tag-list">
+                                    <ui:repeat value="#{book.categories}" var="category">
+                                        <span class="tag-pill">#{category.name}</span>
+                                    </ui:repeat>
+                                </div>
+                                <div class="book-meta">
+                                    <span class="book-price">#{book.price} TL</span>
+                                    <span class="stock-badge #{book.stockQuantity > 0 ? 'in-stock' : 'out-stock'}">
+                                        #{book.stockQuantity > 0 ? 'Stokta' : 'Yok'}
+                                    </span>
+                                </div>
+                                <div class="book-actions">
+                                    <h:link value="Detay" outcome="/book/detail.xhtml" styleClass="btn btn-dark btn-sm flex-fill">
+                                        <f:param name="id" value="#{book.id}"/>
+                                    </h:link>
+                                    <h:form styleClass="flex-fill">
+                                        <h:commandButton value="Sepet"
+                                                         action="#{cartBean.addToCart(book.id)}"
+                                                         rendered="#{book.stockQuantity > 0}"
+                                                         styleClass="btn btn-success btn-sm w-100"/>
+                                    </h:form>
+                                    <h:form>
+                                        <h:commandButton value="Favori"
+                                                         action="#{marketplaceBean.addToWishlist(book.id)}"
+                                                         styleClass="btn btn-outline-danger btn-sm"/>
+                                    </h:form>
+                                </div>
+                            </div>
+                        </article>
+                    </ui:repeat>
+                </div>
+
+                <h:panelGroup layout="block" rendered="#{empty bookBean.allBooks}" styleClass="empty-state">
+                    <h3>Kitap bulunamad&#305;</h3>
+                    <p>Arama metnine uygun kitap yok.</p>
+                </h:panelGroup>
+            </h:panelGroup>
+        </section>
+    </ui:define>
+</ui:composition>

@@ -1,0 +1,81 @@
+<ui:composition template="/template.xhtml"
+                xmlns:ui="jakarta.faces.facelets"
+                xmlns:h="jakarta.faces.html"
+                xmlns:f="jakarta.faces.core">
+    <ui:define name="mainContent">
+        <div class="confirmation-container" style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center;">
+            <div style="color: #27ae60; font-size: 3rem; margin-bottom: 1rem;">
+                ✓
+            </div>
+            
+            <h2 style="color: #27ae60; margin-bottom: 1rem;">Siparişiniz Başarıyla Alındı!</h2>
+            
+            <div class="order-details" style="max-width: 600px; margin: 0 auto; padding: 1.5rem; background: #f8f9fa; border-radius: 8px; text-align: left;">
+                <h3 style="margin-bottom: 1rem;">Sipariş Bilgileri</h3>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                    <div>
+                        <strong>Sipariş Numarası:</strong><br/>
+                        <span>#{orderBean.currentOrder.orderNumber}</span>
+                    </div>
+                    <div>
+                        <strong>Sipariş Tarihi:</strong><br/>
+                        <span>#{orderBean.currentOrder.orderDate}</span>
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 1rem;">
+                    <strong>Toplam Tutar:</strong><br/>
+                    <span style="font-size: 1.2rem; color: #27ae60;">#{orderBean.currentOrder.totalAmount} TL</span>
+                </div>
+                
+                <div style="margin-bottom: 1rem;">
+                    <strong>Sipariş Durumu:</strong><br/>
+                    <span style="color: #f39c12;">#{orderBean.currentOrder.status.displayName}</span>
+                </div>
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <strong>Teslimat Adresi:</strong><br/>
+                    <span>#{orderBean.currentOrder.shippingAddress}</span>
+                </div>
+                
+                <div class="order-items" style="border-top: 1px solid #ddd; padding-top: 1rem;">
+                    <h4 style="margin-bottom: 1rem;">Sipariş Edilen Kitaplar</h4>
+                    <h:panelGroup rendered="#{orderBean.currentOrder.orderItems != null and not empty orderBean.currentOrder.orderItems}">
+                        <ui:repeat value="#{orderBean.currentOrder.orderItems}" var="item">
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid #eee;">
+                                <div>
+                                    <div style="font-weight: bold;">#{item.book.title}</div>
+                                    <div style="font-size: 0.9rem; color: #666;">
+                                        <ui:repeat value="#{item.book.authors}" var="author" varStatus="status">
+                                            #{author.name} #{author.surname}<h:panelGroup rendered="#{not status.last}">, </h:panelGroup>
+                                        </ui:repeat>
+                                    </div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div>#{item.quantity} x #{item.unitPrice} TL</div>
+                                    <div style="font-weight: bold; color: #27ae60;">#{item.totalPrice} TL</div>
+                                </div>
+                            </div>
+                        </ui:repeat>
+                    </h:panelGroup>
+                    <h:panelGroup rendered="#{orderBean.currentOrder.orderItems == null or empty orderBean.currentOrder.orderItems}">
+                        <p style="color: #666; text-align: center; padding: 1rem;">Sipariş edilen kitap bulunamadı.</p>
+                    </h:panelGroup>
+                </div>
+            </div>
+            
+            <div class="actions" style="margin-top: 2rem;">
+                <h:link value="Alışverişe Devam Et" 
+                       outcome="/index.xhtml" 
+                       styleClass="btn btn-primary"
+                       style="margin-right: 1rem;"/>
+                
+                <h:link value="Siparişlerim" 
+                       outcome="/user/orders.xhtml" 
+                       styleClass="btn"
+                       style="background-color: #3498db; color: white;"/>
+            </div>
+        </div>
+    </ui:define>
+</ui:composition>

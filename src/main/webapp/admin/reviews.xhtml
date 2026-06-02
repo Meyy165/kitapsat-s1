@@ -1,0 +1,52 @@
+<ui:composition template="/template.xhtml"
+                xmlns:ui="jakarta.faces.facelets"
+                xmlns:h="jakarta.faces.html"
+                xmlns:f="jakarta.faces.core">
+    <ui:define name="mainContent">
+        <div style="max-width: 1200px; margin: 0 auto; background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 1px solid #eee; padding-bottom: 1rem;">
+                <h2 style="margin: 0; color: #2c3e50;">Yorum Yonetimi</h2>
+                <h:link value="Yeni Yorum Ekle" outcome="/admin/add-review.xhtml" styleClass="btn btn-success"/>
+            </div>
+
+            <h:form>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background: #f8f9fa;">
+                            <th style="padding: 0.8rem; text-align: left; border-bottom: 1px solid #ddd;">ID</th>
+                            <th style="padding: 0.8rem; text-align: left; border-bottom: 1px solid #ddd;">Kitap</th>
+                            <th style="padding: 0.8rem; text-align: left; border-bottom: 1px solid #ddd;">Kullanici</th>
+                            <th style="padding: 0.8rem; text-align: left; border-bottom: 1px solid #ddd;">Puan</th>
+                            <th style="padding: 0.8rem; text-align: left; border-bottom: 1px solid #ddd;">Yorum</th>
+                            <th style="padding: 0.8rem; text-align: center; border-bottom: 1px solid #ddd;">Islemler</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <ui:repeat value="#{reviewBean.allReviews}" var="review">
+                            <tr>
+                                <td style="padding: 0.8rem; border-bottom: 1px solid #eee;">#{review.id}</td>
+                                <td style="padding: 0.8rem; border-bottom: 1px solid #eee;">#{review.book != null ? review.book.title : '-'}</td>
+                                <td style="padding: 0.8rem; border-bottom: 1px solid #eee;">#{review.user != null ? review.user.name : '-'}</td>
+                                <td style="padding: 0.8rem; border-bottom: 1px solid #eee;">#{review.rating}</td>
+                                <td style="padding: 0.8rem; border-bottom: 1px solid #eee; max-width: 360px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">#{review.comment}</td>
+                                <td style="padding: 0.8rem; border-bottom: 1px solid #eee; text-align: center;">
+                                    <h:link value="Duzenle" outcome="/admin/edit-review.xhtml" styleClass="btn">
+                                        <f:param name="id" value="#{review.id}"/>
+                                    </h:link>
+                                    <h:commandLink value="Sil"
+                                                   action="#{reviewBean.deleteReview(review.id)}"
+                                                   onclick="return confirm('Bu yorumu silmek istiyor musunuz?');"
+                                                   style="background: #dc3545; color: white; padding: 0.5rem 1rem; border-radius: 4px; text-decoration: none; margin-left: 0.5rem;"/>
+                                </td>
+                            </tr>
+                        </ui:repeat>
+                    </tbody>
+                </table>
+
+                <ui:fragment rendered="#{empty reviewBean.allReviews}">
+                    <p style="text-align: center; color: #777; padding: 2rem;">Henuz yorum kaydi yok.</p>
+                </ui:fragment>
+            </h:form>
+        </div>
+    </ui:define>
+</ui:composition>

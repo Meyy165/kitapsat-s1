@@ -1,0 +1,70 @@
+<ui:composition template="/template.xhtml"
+                xmlns:ui="jakarta.faces.facelets"
+                xmlns:h="jakarta.faces.html">
+    <ui:define name="mainContent">
+        <section class="container py-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
+                <div>
+                    <h1 class="section-title mb-1">Admin Paneli</h1>
+                    <p class="muted-copy mb-0">Katalog, kullanici, siparis ve yeni satis ozelliklerini yonetin.</p>
+                </div>
+                <h:link value="Siteye Don" outcome="/index.xhtml" styleClass="btn btn-outline-dark"/>
+            </div>
+
+            <div class="metric-grid mb-4">
+                <div class="metric-card p-4">
+                    <div class="text-muted small text-uppercase">Kitap</div>
+                    <div class="display-6 fw-bold">#{bookBean.allBooks.size()}</div>
+                </div>
+                <div class="metric-card p-4">
+                    <div class="text-muted small text-uppercase">Kullanici</div>
+                    <div class="display-6 fw-bold">#{userBean.totalUsersCount}</div>
+                </div>
+                <div class="metric-card p-4">
+                    <div class="text-muted small text-uppercase">Kupon</div>
+                    <div class="display-6 fw-bold">#{marketplaceBean.couponCount}</div>
+                </div>
+                <div class="metric-card p-4">
+                    <div class="text-muted small text-uppercase">Destek Talebi</div>
+                    <div class="display-6 fw-bold">#{marketplaceBean.supportTicketCount}</div>
+                </div>
+            </div>
+
+            <div class="feature-grid">
+                <div class="feature-card admin-tile">
+                    <h2 class="h5">Kitap Yonetimi</h2>
+                    <p class="muted-copy">Kitap ekleme, duzenleme, stok ve katalog bilgileri.</p>
+                    <h:link value="Kitaplari Listele" outcome="/admin/books.xhtml" styleClass="btn btn-dark btn-sm me-2"/>
+                    <h:link value="Yeni Kitap" outcome="/admin/add-book.xhtml" styleClass="btn btn-success btn-sm"/>
+                </div>
+                <div class="feature-card admin-tile">
+                    <h2 class="h5">Yazar ve Yayinevi</h2>
+                    <p class="muted-copy">Yazar, yayinevi ve kategori verilerini yonetin.</p>
+                    <h:link value="Yazarlar" outcome="/admin/authors.xhtml" styleClass="btn btn-outline-dark btn-sm me-2"/>
+                    <h:link value="Yayinevleri" outcome="/admin/publishers.xhtml" styleClass="btn btn-outline-dark btn-sm"/>
+                </div>
+                <div class="feature-card admin-tile">
+                    <h2 class="h5">Kategoriler</h2>
+                    <p class="muted-copy">Kitaplarin katalog siniflandirmalarini duzenleyin.</p>
+                    <h:link value="Kategoriler" outcome="/admin/categories.xhtml" styleClass="btn btn-outline-dark btn-sm"/>
+                </div>
+                <div class="feature-card admin-tile">
+                    <h2 class="h5">Kullanicilar</h2>
+                    <p class="muted-copy">Musteri ve admin hesaplarini goruntuleyin.</p>
+                    <h:link value="Kullanicilar" outcome="/admin/users.xhtml" styleClass="btn btn-outline-dark btn-sm"/>
+                </div>
+                <div class="feature-card admin-tile">
+                    <h2 class="h5">Siparis ve Kargo</h2>
+                    <p class="muted-copy">Siparisler, odemeler ve yeni kargo takip modeli.</p>
+                    <h:link value="Siparisler" outcome="/admin/orders.xhtml" styleClass="btn btn-outline-dark btn-sm"/>
+                </div>
+                <div class="feature-card admin-tile">
+                    <h2 class="h5">Yorum ve Destek</h2>
+                    <p class="muted-copy">Yorumlar ve destek talepleri ile musteri deneyimini takip edin.</p>
+                    <h:link value="Yorumlar" outcome="/admin/reviews.xhtml" styleClass="btn btn-outline-dark btn-sm me-2"/>
+                    <h:link value="Destek Sayfasi" outcome="/support.xhtml" styleClass="btn btn-outline-dark btn-sm"/>
+                </div>
+            </div>
+        </section>
+    </ui:define>
+</ui:composition>

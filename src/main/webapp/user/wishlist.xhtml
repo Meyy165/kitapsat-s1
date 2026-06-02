@@ -1,0 +1,42 @@
+<ui:composition template="/template.xhtml"
+                xmlns:ui="jakarta.faces.facelets"
+                xmlns:h="jakarta.faces.html"
+                xmlns:f="jakarta.faces.core">
+    <ui:define name="mainContent">
+        <section class="container py-4">
+            <div class="d-flex justify-content-between align-items-end mb-3">
+                <div>
+                    <h1 class="section-title mb-1">Istek Listem</h1>
+                    <p class="muted-copy mb-0">Daha sonra satin almak istediginiz kitaplar.</p>
+                </div>
+                <h:link value="Kitaplara Don" outcome="/book/list.xhtml" styleClass="btn btn-outline-dark"/>
+            </div>
+
+            <div class="book-grid">
+                <ui:repeat value="#{marketplaceBean.wishlistItems}" var="item">
+                    <div class="book-card">
+                        <img class="book-cover" src="#{item.book.imageUrl}" alt="#{item.book.title}"
+                             onerror="this.onerror=null;this.src='https://placehold.co/300x420/111827/ffffff?text=Kitap';"/>
+                        <div class="book-card-body">
+                            <div class="book-title">#{item.book.title}</div>
+                            <div class="book-price mt-2">#{item.book.price} TL</div>
+                            <div class="d-flex gap-2 mt-3">
+                                <h:link value="Detay" outcome="/book/detail.xhtml" styleClass="btn btn-dark btn-sm flex-fill">
+                                    <f:param name="id" value="#{item.book.id}"/>
+                                </h:link>
+                                <h:form>
+                                    <h:commandButton value="Sil" action="#{marketplaceBean.removeWishlistItem(item.id)}" styleClass="btn btn-outline-danger btn-sm"/>
+                                </h:form>
+                            </div>
+                        </div>
+                    </div>
+                </ui:repeat>
+            </div>
+
+            <h:panelGroup rendered="#{empty marketplaceBean.wishlistItems}" layout="block" styleClass="surface p-5 text-center">
+                <h3>Listeniz bos</h3>
+                <p class="muted-copy">Kitap detayindan veya katalogdan favori kitap ekleyebilirsiniz.</p>
+            </h:panelGroup>
+        </section>
+    </ui:define>
+</ui:composition>

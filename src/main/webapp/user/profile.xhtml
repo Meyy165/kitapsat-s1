@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="tr"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:ui="jakarta.faces.facelets">
+<ui:composition template="/template.xhtml">
+    <ui:define name="mainContent">
+        <f:metadata>
+            <f:event type="preRenderView" listener="#{userBean.loadCurrentUser()}"/>
+        </f:metadata>
+        <div class="profile-container" style="max-width: 800px; margin: 2rem auto; background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            <h2>👤 Kullanıcı Profili</h2>
+            
+            <div class="profile-info" style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem;">
+                <div class="personal-info">
+                    <h3>Kişisel Bilgiler</h3>
+                    <div class="info-group" style="margin-bottom: 1rem;">
+                        <label><strong>Ad:</strong></label>
+                        <p>#{sessionScope.user.name}</p>
+                    </div>
+                    <div class="info-group" style="margin-bottom: 1rem;">
+                        <label><strong>Soyad:</strong></label>
+                        <p>#{sessionScope.user.surname}</p>
+                    </div>
+                    <div class="info-group" style="margin-bottom: 1rem;">
+                        <label><strong>E-posta:</strong></label>
+                        <p>#{sessionScope.user.email}</p>
+                    </div>
+                    <div class="info-group" style="margin-bottom: 1rem;">
+                        <label><strong>Telefon:</strong></label>
+                        <p>#{sessionScope.user.phone != null ? sessionScope.user.phone : 'Belirtilmemiş'}</p>
+                    </div>
+                    <div class="info-group" style="margin-bottom: 1rem;">
+                        <label><strong>Adres:</strong></label>
+                        <p>#{sessionScope.user.address != null ? sessionScope.user.address : 'Belirtilmemiş'}</p>
+                    </div>
+                </div>
+                
+                <div class="account-info">
+                    <h3>Hesap Bilgileri</h3>
+                    <div class="info-group" style="margin-bottom: 1rem;">
+                        <label><strong>Kullanıcı ID:</strong></label>
+                        <p>#{sessionScope.user.id}</p>
+                    </div>
+                    <div class="info-group" style="margin-bottom: 1rem;">
+                        <label><strong>Rol:</strong></label>
+                        <p>
+                            <span style="background-color: #3498db; color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">
+                                #{sessionScope.user.role}
+                            </span>
+                        </p>
+                    </div>
+                    
+                    <div class="profile-actions" style="margin-top: 2rem; text-align: center;">
+                    <button onclick="openEditModal()" class="btn" style="background-color: #3498db; color: white; padding: 0.8rem 2rem; border: none; border-radius: 4px; cursor: pointer;">
+                        📝 Profil Bilgilerini Düzenle
+                    </button>
+                    <button onclick="openPasswordModal()" class="btn" style="background-color: #f39c12; color: white; padding: 0.8rem 2rem; border: none; border-radius: 4px; cursor: pointer; margin-left: 0.5rem;">
+                        🔐 Şifre Değiştir
+                    </button>
+                </div>
+                
+                <!-- Profil Düzenleme Modal -->
+                <div id="editModal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
+                    <div class="modal-content" style="background-color: white; margin: 5% auto; padding: 2rem; border-radius: 8px; width: 90%; max-width: 600px; position: relative;">
+                        <span class="close" onclick="closeEditModal()" style="position: absolute; right: 1rem; top: 1rem; font-size: 2rem; cursor: pointer; color: #999;">×</span>
+                        <h3 style="margin-bottom: 1.5rem;">📝 Profil Bilgilerini Düzenle</h3>
+                        
+                        <h:form id="editProfileForm" style="width: 100%;">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <div class="form-group">
+                                    <label for="modalName"><strong>Ad:</strong></label>
+                                    <h:inputText id="modalName" value="#{userBean.user.name}" 
+                                                styleClass="form-control" 
+                                                style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;"/>
+                                </div>
+                                <div class="form-group">
+                                    <label for="modalSurname"><strong>Soyad:</strong></label>
+                                    <h:inputText id="modalSurname" value="#{userBean.user.surname}" 
+                                                styleClass="form-control" 
+                                                style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;"/>
+                                </div>
+                            </div>
+                           
+                            <div class="form-group" style="margin-top: 1rem;">
+                                <label for="modalEmail"><strong>E-posta:</strong></label>
+                                <h:inputText id="modalEmail" value="#{userBean.user.email}" 
+                                            styleClass="form-control" 
+                                            style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;"/>
+                            </div>
+                           
+                            <div class="form-group" style="margin-top: 1rem;">
+                                <label for="modalPhone"><strong>Telefon:</strong></label>
+                                <h:inputText id="modalPhone" value="#{userBean.user.phone}" 
+                                            styleClass="form-control" 
+                                            style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;"/>
+                            </div>
+                           
+                            <div class="form-group" style="margin-top: 1rem;">
+                                <label for="modalAddress"><strong>Adres:</strong></label>
+                                <h:inputTextarea id="modalAddress" value="#{userBean.user.address}" 
+                                                 styleClass="form-control" 
+                                                 rows="3"
+                                                 style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; resize: vertical;"/>
+                            </div>
+                           
+                            <div style="margin-top: 1.5rem; text-align: right;">
+                                <button type="button" onclick="closeEditModal()" class="btn" style="background-color: #95a5a6; color: white; padding: 0.5rem 1rem; border: none; border-radius: 4px; margin-right: 0.5rem; cursor: pointer;">
+                                    İptal
+                                </button>
+                                <h:commandButton value="Profili Güncelle" 
+                                                 action="#{userBean.editProfile()}"
+                                                 styleClass="btn"
+                                                 style="background-color: #27ae60; color: white; padding: 0.5rem 1rem; border: none; border-radius: 4px;"/>
+                            </div>
+                        </h:form>
+                    </div>
+                </div>
+                
+                <!-- Şifre Değiştir Modal -->
+                <div id="passwordModal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
+                    <div class="modal-content" style="background-color: white; margin: 5% auto; padding: 2rem; border-radius: 8px; width: 90%; max-width: 500px; position: relative;">
+                        <span class="close" onclick="closePasswordModal()" style="position: absolute; right: 1rem; top: 1rem; font-size: 2rem; cursor: pointer; color: #999;">×</span>
+                        <h3 style="margin-bottom: 1.5rem;">🔐 Şifre Değiştir</h3>
+                        
+                        <h:form style="width: 100%;">
+                            <div class="form-group" style="margin-bottom: 1rem;">
+                                <label for="newPassword"><strong>Yeni Şifre:</strong></label>
+                                <h:inputSecret id="newPassword" value="#{userBean.user.password}" 
+                                               styleClass="form-control" 
+                                               style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;"/>
+                            </div>
+                           
+                            <div class="form-group" style="margin-bottom: 1rem;">
+                                <label for="confirmNewPassword"><strong>Şifre Tekrar:</strong></label>
+                                <h:inputSecret id="confirmNewPassword" value="#{userBean.confirmPassword}" 
+                                               styleClass="form-control" 
+                                               style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;"/>
+                            </div>
+                           
+                            <div style="margin-top: 1.5rem; text-align: right;">
+                                <button type="button" onclick="closePasswordModal()" class="btn" style="background-color: #95a5a6; color: white; padding: 0.5rem 1rem; border: none; border-radius: 4px; margin-right: 0.5rem; cursor: pointer;">
+                                    İptal
+                                </button>
+                                <h:commandButton value="Şifreyi Güncelle" 
+                                                 action="#{userBean.changePassword()}"
+                                                 styleClass="btn"
+                                                 style="background-color: #f39c12; color: white; padding: 0.5rem 1rem; border: none; border-radius: 4px;"/>
+                            </div>
+                        </h:form>
+                    </div>
+                </div>
+                
+                <!-- JavaScript Modal Fonksiyonları -->
+                <script>
+                    function openEditModal() {
+                        document.getElementById('editModal').style.display = 'block';
+                    }
+                    
+                    function closeEditModal() {
+                        document.getElementById('editModal').style.display = 'none';
+                    }
+                    
+                    function openPasswordModal() {
+                        document.getElementById('passwordModal').style.display = 'block';
+                    }
+                    
+                    function closePasswordModal() {
+                        document.getElementById('passwordModal').style.display = 'none';
+                    }
+                    
+                    // Modal dışına tıklandığında kapat
+                    window.onclick = function(event) {
+                        const editModal = document.getElementById('editModal');
+                        const passwordModal = document.getElementById('passwordModal');
+                        
+                        if (event.target == editModal) {
+                            editModal.style.display = 'none';
+                        }
+                        if (event.target == passwordModal) {
+                            passwordModal.style.display = 'none';
+                        }
+                    }
+                </script>
+                </div>
+            </div>
+        </div>
+    </ui:define>
+</ui:composition>
+</html>

@@ -1,0 +1,99 @@
+<ui:composition template="/template.xhtml"
+                xmlns:ui="jakarta.faces.facelets"
+                xmlns:h="jakarta.faces.html"
+                xmlns:f="jakarta.faces.core">
+    <ui:define name="mainContent">
+        <section class="hero">
+            <div class="container hero-inner">
+                <div class="hero-copy">
+                    <p class="eyebrow">Online kitap sat&#305;&#351; platformu</p>
+                    <h1>Rafine Kitap</h1>
+                    <p class="hero-lead">Okurlar&#305;n kitap ke&#351;fi, sepet, sipari&#351;, &#246;deme ve destek s&#252;recini tek yerde y&#246;neten modern kitap ma&#287;azas&#305;.</p>
+                    <div class="hero-actions">
+                        <h:link value="Kitaplar&#305; &#304;ncele" outcome="/book/list.xhtml" styleClass="btn btn-light btn-lg"/>
+                        <h:link value="Asistana Sor" outcome="/assistant.xhtml" styleClass="btn btn-outline-light btn-lg"/>
+                    </div>
+                </div>
+                <div class="hero-showcase" aria-label="Kitap vitrini">
+                    <div class="showcase-book showcase-book-main">
+                        <span>Rafine</span>
+                        <strong>Se&#231;ki</strong>
+                    </div>
+                    <div class="showcase-book showcase-book-side">
+                        <span>Yeni</span>
+                        <strong>Okuma</strong>
+                    </div>
+                    <div class="showcase-card">
+                        <span class="small-label">Okuma deneyimi</span>
+                        <strong>Ak&#305;ll&#305; &#214;neri</strong>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="container stats-band" aria-label="Platform ozeti">
+            <div class="stat-item">
+                <strong>#{bookBean.allBooks.size()}</strong>
+                <span>Kitap</span>
+            </div>
+            <div class="stat-item">
+                <strong>#{userBean.totalUsersCount}</strong>
+                <span>Okur</span>
+            </div>
+            <div class="stat-item">
+                <strong>#{marketplaceBean.couponCount}</strong>
+                <span>Kupon</span>
+            </div>
+            <div class="stat-item">
+                <strong>#{marketplaceBean.shipmentCount}</strong>
+                <span>Kargo</span>
+            </div>
+        </section>
+
+        <section class="container content-section">
+            <div class="section-head">
+                <div>
+                    <p class="eyebrow dark">Vitrin</p>
+                    <h2 class="section-title">&#214;ne &#199;&#305;kan Kitaplar</h2>
+                    <p class="muted-copy">Katalogdaki yeni ve dikkat &#231;eken kitaplar.</p>
+                </div>
+                <h:link value="T&#252;m&#252;n&#252; G&#246;r" outcome="/book/list.xhtml" styleClass="btn btn-outline-dark"/>
+            </div>
+            <div class="book-grid">
+                <ui:repeat value="#{bookBean.allBooks.subList(0, bookBean.allBooks.size() > 4 ? 4 : bookBean.allBooks.size())}" var="book">
+                    <article class="book-card">
+                        <img class="book-cover" src="#{book.imageUrl}" alt="#{book.title}"
+                             onerror="this.onerror=null;this.src='https://placehold.co/300x420/172554/ffffff?text=Rafine+Kitap';"/>
+                        <div class="book-card-body">
+                            <h3 class="book-title">#{book.title}</h3>
+                            <div class="book-price">#{book.price} TL</div>
+                            <h:link value="Detay" outcome="/book/detail.xhtml" styleClass="btn btn-sm btn-dark mt-3">
+                                <f:param name="id" value="#{book.id}"/>
+                            </h:link>
+                        </div>
+                    </article>
+                </ui:repeat>
+            </div>
+        </section>
+
+        <section class="container content-section">
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <span class="feature-icon">01</span>
+                    <h3>Ak&#305;ll&#305; Ke&#351;if</h3>
+                    <p>Okuma asistan&#305; ile b&#252;t&#231;e, t&#252;r ve ilgi alan&#305;na g&#246;re kitap &#246;nerisi al.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">02</span>
+                    <h3>Net Katalog</h3>
+                    <p>Yazar, kategori, stok ve fiyat bilgilerini temiz bir katalog ekran&#305;ndan incele.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">03</span>
+                    <h3>Sat&#305;&#351; Ak&#305;&#351;&#305;</h3>
+                    <p>Sepet, &#246;deme, sipari&#351;, kargo, kupon ve destek s&#252;re&#231;leri ayn&#305; sistemde.</p>
+                </div>
+            </div>
+        </section>
+    </ui:define>
+</ui:composition>

@@ -1,0 +1,31 @@
+<ui:composition template="/template.xhtml"
+                xmlns:ui="jakarta.faces.facelets"
+                xmlns:h="jakarta.faces.html">
+    <ui:define name="mainContent">
+        <section class="container py-4">
+            <div class="surface p-4 mx-auto" style="max-width: 430px;">
+                <h1 class="section-title h3">Giriş Yap</h1>
+                <p class="muted-copy">Rafine Kitap hesabınla devam et.</p>
+                <h:messages styleClass="alert alert-danger" globalOnly="true"/>
+
+                <h:form>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">E-posta</label>
+                        <h:inputText id="email" value="#{loginBean.user.email}" styleClass="form-control"/>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Şifre</label>
+                        <h:inputSecret id="password" value="#{loginBean.user.password}" styleClass="form-control"/>
+                    </div>
+
+                    <h:commandButton value="Giriş Yap" action="#{loginBean.login()}" styleClass="btn btn-dark w-100"/>
+                </h:form>
+
+                <div class="text-center mt-3">
+                    <p class="mb-0">Hesabın yok mu? <h:link value="Kayıt Ol" outcome="/user/register.xhtml"/></p>
+                </div>
+            </div>
+        </section>
+    </ui:define>
+</ui:composition>

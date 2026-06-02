@@ -1,0 +1,88 @@
+<ui:composition template="/template.xhtml"
+                xmlns:ui="jakarta.faces.facelets"
+                xmlns:h="jakarta.faces.html"
+                xmlns:f="jakarta.faces.core">
+    <ui:define name="mainContent">
+        <f:metadata>
+            <f:viewParam name="id" value="#{bookBean.book.id}"/>
+            <f:event type="preRenderView" listener="#{bookBean.viewBook(bookBean.book.id)}"/>
+        </f:metadata>
+
+        <section class="container py-4">
+            <h:messages globalOnly="true" styleClass="alert alert-info"/>
+            <div class="surface p-4">
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <img class="book-cover rounded" src="#{bookBean.book.imageUrl}" alt="#{bookBean.book.title}"
+                             onerror="this.onerror=null;this.src='https://placehold.co/360x480/111827/ffffff?text=Kitap';"/>
+                    </div>
+                    <div class="col-md-8">
+                        <h1 class="section-title">#{bookBean.book.title}</h1>
+                        <p class="muted-copy">#{bookBean.book.description}</p>
+
+                        <div class="row g-3 my-3">
+                            <div class="col-sm-6">
+                                <div class="small text-uppercase text-muted">Yazarlar</div>
+                                <strong>
+                                    <ui:repeat value="#{bookBean.book.authors}" var="author" varStatus="status">
+                                        #{author.name} #{author.surname}#{not status.last ? ', ' : ''}
+                                    </ui:repeat>
+                                </strong>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="small text-uppercase text-muted">Yayinevi</div>
+                                <strong>#{bookBean.book.publisher.name}</strong>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="small text-uppercase text-muted">ISBN</div>
+                                <strong>#{bookBean.book.isbn}</strong>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="small text-uppercase text-muted">Stok</div>
+                                <strong>#{bookBean.book.stockQuantity}</strong>
+                            </div>
+                        </div>
+
+                        <div class="tag-list mb-4">
+                            <ui:repeat value="#{bookBean.book.categories}" var="category">
+                                <span class="tag-pill">#{category.name}</span>
+                            </ui:repeat>
+                        </div>
+
+                        <div class="d-flex flex-wrap align-items-center gap-3">
+                            <div class="book-price fs-3">#{bookBean.book.price} TL</div>
+                            <h:form>
+                                <h:commandButton value="Sepete Ekle"
+                                                 action="#{cartBean.addToCart(bookBean.book.id)}"
+                                                 styleClass="btn btn-success btn-lg"
+                                                 disabled="#{bookBean.book.stockQuantity le 0}"/>
+                            </h:form>
+                            <h:form>
+                                <h:commandButton value="Istek Listesine Ekle"
+                                                 action="#{marketplaceBean.addToWishlist(bookBean.book.id)}"
+                                                 styleClass="btn btn-outline-danger btn-lg"/>
+                            </h:form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-5">
+                <h2 class="section-title mb-3">Benzer Kitaplar</h2>
+                <div class="book-grid">
+                    <ui:repeat value="#{bookBean.allBooks.subList(0, bookBean.allBooks.size() > 4 ? 4 : bookBean.allBooks.size())}" var="relatedBook">
+                        <div class="book-card">
+                            <div class="book-card-body">
+                                <div class="book-title">#{relatedBook.title}</div>
+                                <div class="book-price mt-2">#{relatedBook.price} TL</div>
+                                <h:link value="Detay" outcome="/book/detail.xhtml" styleClass="btn btn-sm btn-outline-dark mt-3">
+                                    <f:param name="id" value="#{relatedBook.id}"/>
+                                </h:link>
+                            </div>
+                        </div>
+                    </ui:repeat>
+                </div>
+            </div>
+        </section>
+    </ui:define>
+</ui:composition>

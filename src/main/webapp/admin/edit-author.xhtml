@@ -1,0 +1,53 @@
+<ui:composition template="/template.xhtml"
+                xmlns:ui="jakarta.faces.facelets"
+                xmlns:h="jakarta.faces.html"
+                xmlns:f="jakarta.faces.core">
+    <ui:define name="mainContent">
+        <div class="edit-author-form" style="max-width: 600px; margin: 0 auto; background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+            <h2 style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin: 0 0 2rem 0; font-size: 2rem; font-weight: bold; text-align: center;">✏️ Yazar Düzenle</h2>
+            
+            <h:form>
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label for="name" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #495057;">Ad *</label>
+                    <h:inputText id="name" value="#{authorBean.author.name}" styleClass="form-control" 
+                                required="true" 
+                                style="width: 100%; padding: 0.8rem; border: 2px solid #e9ecef; border-radius: 8px; font-size: 1rem; transition: border-color 0.3s ease;"
+                                onfocus="this.style.borderColor='#667eea'" 
+                                onblur="this.style.borderColor='#e9ecef'"/>
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label for="surname" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #495057;">Soyad *</label>
+                    <h:inputText id="surname" value="#{authorBean.author.surname}" styleClass="form-control" 
+                                required="true"
+                                style="width: 100%; padding: 0.8rem; border: 2px solid #e9ecef; border-radius: 8px; font-size: 1rem; transition: border-color 0.3s ease;"
+                                onfocus="this.style.borderColor='#667eea'" 
+                                onblur="this.style.borderColor='#e9ecef'"/>
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 2rem;">
+                    <label for="biography" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #495057;">Biyografi</label>
+                    <h:inputTextarea id="biography" value="#{authorBean.author.biography}" styleClass="form-control" 
+                                    rows="5" 
+                                    placeholder="Yazar hakkında kısa bilgi..."
+                                    style="width: 100%; padding: 0.8rem; border: 2px solid #e9ecef; border-radius: 8px; font-size: 1rem; resize: vertical; transition: border-color 0.3s ease;"
+                                    onfocus="this.style.borderColor='#667eea'" 
+                                    onblur="this.style.borderColor='#e9ecef'"/>
+                </div>
+                
+                <div class="form-actions" style="text-align: center; padding-top: 2rem; border-top: 2px solid #f0f0f0;">
+                    <h:commandButton value="💾 Güncelle" 
+                                   action="#{authorBean.updateAuthor()}"
+                                   style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 1rem 3rem; border-radius: 50px; font-size: 1.1rem; font-weight: bold; margin-right: 1rem; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); transition: all 0.3s ease; cursor: pointer;"
+                                   onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(102, 126, 234, 0.6)';"
+                                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(102, 126, 234, 0.4)';"/>
+                    <h:link value="❌ İptal" 
+                           outcome="/admin/authors.xhtml" 
+                           style="background: #6c757d; color: white; padding: 1rem 3rem; border-radius: 50px; font-size: 1.1rem; font-weight: bold; text-decoration: none; display: inline-block; box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3); transition: all 0.3s ease;"
+                           onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(108, 117, 125, 0.5)';"
+                           onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(108, 117, 125, 0.3)';"/>
+                </div>
+            </h:form>
+        </div>
+    </ui:define>
+</ui:composition>

@@ -1,0 +1,60 @@
+<ui:composition template="/template.xhtml"
+                xmlns:ui="jakarta.faces.facelets"
+                xmlns:h="jakarta.faces.html">
+    <ui:define name="mainContent">
+        <section class="container py-4">
+            <div class="surface p-4 mx-auto" style="max-width: 560px;">
+                <h1 class="section-title h3">Yeni Hesap Oluştur</h1>
+                <p class="muted-copy">Okuma listen, siparişlerin ve önerilerin tek yerde toplansın.</p>
+                <h:messages styleClass="alert alert-danger" globalOnly="true"/>
+
+                <h:form>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="name" class="form-label">Ad *</label>
+                            <h:inputText id="name" value="#{userBean.user.name}" styleClass="form-control" required="true"/>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="surname" class="form-label">Soyad *</label>
+                            <h:inputText id="surname" value="#{userBean.user.surname}" styleClass="form-control" required="true"/>
+                        </div>
+
+                        <div class="col-12">
+                            <label for="email" class="form-label">E-posta *</label>
+                            <h:inputText id="email" value="#{userBean.user.email}" styleClass="form-control" required="true"/>
+                        </div>
+
+                        <div class="col-12">
+                            <label for="phone" class="form-label">Telefon</label>
+                            <h:inputText id="phone" value="#{userBean.user.phone}" styleClass="form-control"/>
+                        </div>
+
+                        <div class="col-12">
+                            <label for="address" class="form-label">Adres</label>
+                            <h:inputTextarea id="address" value="#{userBean.user.address}" styleClass="form-control" rows="3"/>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="password" class="form-label">Şifre *</label>
+                            <h:inputSecret id="password" value="#{userBean.user.password}" styleClass="form-control" required="true"/>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="confirmPassword" class="form-label">Şifre Tekrar *</label>
+                            <h:inputSecret id="confirmPassword" value="#{userBean.confirmPassword}" styleClass="form-control" required="true"/>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <h:commandButton value="Kayıt Ol" action="#{userBean.register()}" styleClass="btn btn-dark w-100"/>
+                    </div>
+                </h:form>
+
+                <div class="text-center mt-3">
+                    <p class="mb-0">Zaten hesabın var mı? <h:link value="Giriş Yap" outcome="/login.xhtml"/></p>
+                </div>
+            </div>
+        </section>
+    </ui:define>
+</ui:composition>

@@ -1,0 +1,9 @@
+target/
+*.log
+*.err.log
+*.pid
+
+.idea/
+
+*.class
+*.war

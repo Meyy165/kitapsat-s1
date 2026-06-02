@@ -1,0 +1,45 @@
+<ui:composition template="/template.xhtml"
+                xmlns:ui="jakarta.faces.facelets"
+                xmlns:h="jakarta.faces.html">
+    <ui:define name="mainContent">
+        <section class="container py-4">
+            <div class="row g-4">
+                <div class="col-lg-5">
+                    <div class="surface p-4">
+                        <h1 class="section-title h3">Destek Talebi</h1>
+                        <p class="muted-copy">Siparis, odeme, kargo veya hesap konulari icin talep olusturun.</p>
+                        <h:messages globalOnly="true" styleClass="alert alert-info"/>
+                        <h:form>
+                            <div class="mb-3">
+                                <label class="form-label">Konu</label>
+                                <h:inputText value="#{marketplaceBean.supportTicket.subject}" required="true" styleClass="form-control"/>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Mesaj</label>
+                                <h:inputTextarea value="#{marketplaceBean.supportTicket.message}" required="true" rows="6" styleClass="form-control"/>
+                            </div>
+                            <h:commandButton value="Talep Gonder" action="#{marketplaceBean.submitSupportTicket()}" styleClass="btn btn-dark"/>
+                        </h:form>
+                    </div>
+                </div>
+                <div class="col-lg-7">
+                    <div class="surface p-4">
+                        <h2 class="section-title h4">Taleplerim</h2>
+                        <ui:repeat value="#{marketplaceBean.mySupportTickets}" var="ticket">
+                            <div class="border-bottom py-3">
+                                <div class="d-flex justify-content-between">
+                                    <strong>#{ticket.subject}</strong>
+                                    <span class="badge text-bg-secondary">#{ticket.status}</span>
+                                </div>
+                                <p class="muted-copy mb-0">#{ticket.message}</p>
+                            </div>
+                        </ui:repeat>
+                        <h:panelGroup rendered="#{empty marketplaceBean.mySupportTickets}">
+                            <p class="muted-copy mb-0">Henuz destek talebiniz yok.</p>
+                        </h:panelGroup>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </ui:define>
+</ui:composition>
