@@ -1,0 +1,7 @@
+src/main/webapp/resources/css/bootstrap*.css linguist-vendored
+src/main/webapp/resources/css/bootstrap*.css.map linguist-vendored
+src/main/webapp/resources/js/bootstrap*.js linguist-vendored
+src/main/webapp/resources/js/bootstrap*.js.map linguist-vendored
+*.xhtml linguist-detectable=true
+*.java linguist-detectable=true
+*.css linguist-detectable=true
