@@ -24,15 +24,15 @@ public class ReadingAssistantBean implements Serializable {
     private static final int MAX_MESSAGES = 18;
 
     private String question;
-    private String answer = "Merhaba, ben Rafine Asistan. Önce birkaç seçenekten birini seçebilir ya da kendi isteğini yazabilirsin.";
+    private String answer = "Merhaba, ben Rafine Asistan. Kitap bulma, sepet, ödeme, giriş, kayıt, favori, destek ve admin işlemleri hakkında yardımcı olabilirim.";
     private List<ChatMessage> messages = new ArrayList<>();
     private final List<String> quickOptions = List.of(
-            "Bütçeme uygun kitaplar",
-            "Polisiye ve gizem",
-            "Klasik öner",
-            "Roman öner",
-            "Çocuk kitapları",
-            "Tarih kitapları"
+            "Kitap öner",
+            "110 TL olanlar",
+            "Sepete nasıl eklerim?",
+            "Admin girişi",
+            "Favoriler nasıl çalışır?",
+            "Destek talebi aç"
     );
 
     @EJB
@@ -41,51 +41,16 @@ public class ReadingAssistantBean implements Serializable {
     public String ask() {
         String clean = normalize(question);
         if (clean.isEmpty()) {
-            answer = "Bir seçenek seçebilir ya da örneğin '150 TL altı polisiye öner' gibi daha net bir istek yazabilirsin.";
+            answer = "Ne yapmak istediğini yazabilirsin. Örneğin: '110 TL olanlar', 'polisiye öner', 'sepete nasıl eklerim', 'admin girişi nasıl yapılır'.";
             addAssistantMessage(answer);
             return null;
         }
 
         addUserMessage(question.trim());
-        if (!isBookRequest(clean)) {
-            answer = "Bunu kitap önerisi olarak anlayamadım. Bana tür, bütçe, yaş grubu veya okuma amacı yazabilirsin. Örneğin: 'polisiye öner', '150 TL altı roman', 'çocuk kitabı öner' ya da 'klasik okumaya nereden başlayayım?'.";
-            addAssistantMessage(answer);
-            question = "";
-            return null;
-        }
-
-        List<Book> books = bookFacade.findAll();
-        if (books.isEmpty()) {
-            answer = "Katalogda henüz kitap bulunmuyor. Kitap eklendiğinde burada öneriler göstereceğim.";
-            addAssistantMessage(answer);
-            question = "";
-            return null;
-        }
-
-        List<Book> matches = filterBooks(clean, books);
-        String intro = chooseIntro(clean, matches);
-        if (matches.isEmpty()) {
-            matches = books.stream()
-                    .filter(book -> book.getStockQuantity() > 0)
-                    .sorted(Comparator.comparing(Book::getTitle, Comparator.nullsLast(String::compareToIgnoreCase)))
-                    .limit(3)
-                    .toList();
-            intro = "Tam eşleşen kitap bulamadım; başlamak için bunlara bakabilirsin";
-        }
-
-        answer = formatRecommendation(intro, matches);
+        answer = buildAnswer(clean);
         addAssistantMessage(answer);
         question = "";
         return null;
-    }
-
-    private boolean isBookRequest(String clean) {
-        return extractPriceIntent(clean) != null
-                || detectKeyword(clean) != null
-                || containsAny(clean,
-                "kitap", "oku", "okuma", "okuyayim", "okuyayım", "oner", "öner", "tavsiye",
-                "ucuz", "butce", "butceme", "fiyat", "tl", "lira", "stok", "mevcut",
-                "hediye", "cocuk", "genclik", "yas", "yaş", "baslangic", "başlangıç");
     }
 
     public String chooseOption(String option) {
@@ -93,72 +58,87 @@ public class ReadingAssistantBean implements Serializable {
         return ask();
     }
 
+    private String buildAnswer(String clean) {
+        if (containsAny(clean, "merhaba", "selam", "slm", "hey")) {
+            return "Merhaba. Sana kitap seçimi, fiyat arama, sepet, ödeme, giriş/kayıt, favoriler, destek ve admin paneli konusunda yardımcı olabilirim.";
+        }
+        if (containsAny(clean, "admin")) {
+            return "Admin paneline girmek için Giriş sayfasından admin hesabıyla oturum açmalısın. Admin kullanıcı giriş yapınca üst menüde Admin bağlantısı görünür. Admin panelinde kitap, yazar, kategori, yayınevi, yorum, kullanıcı ve sipariş yönetimi yapılır.";
+        }
+        if (containsAny(clean, "giris", "giriş", "login", "oturum")) {
+            return "Giriş yapmak için üst menüden Giriş sayfasına git. E-posta ve şifreni yazıp Giriş Yap butonuna bas. Admin hesabı admin paneline, normal kullanıcı kitap listesine yönlenir.";
+        }
+        if (containsAny(clean, "kayit", "kayıt", "uye", "üye", "hesap ac", "hesap aç")) {
+            return "Kayıt olmak için üst menüden Kayıt sayfasına git. Ad, soyad, e-posta ve şifre bilgilerini doldur. Kayıttan sonra normal kullanıcı rolüyle giriş yapabilirsin.";
+        }
+        if (containsAny(clean, "sepet", "sepete", "ekle")) {
+            return "Kitaplar sayfasında stokta olan kitapların yanında Sepet butonu bulunur. Sepete ekledikten sonra üst menüdeki Sepet bağlantısından ürünleri görebilir ve ödeme adımına geçebilirsin.";
+        }
+        if (containsAny(clean, "odeme", "ödeme", "checkout", "siparis", "sipariş", "satın", "satin")) {
+            return "Sepet sayfasından Ödemeye Geç butonuyla ödeme adımına ilerlersin. Sipariş tamamlandığında onay sayfası açılır ve sipariş bilgileri gösterilir.";
+        }
+        if (containsAny(clean, "favori", "istek", "wishlist", "begendim", "beğendim")) {
+            return "Kitaplar sayfasındaki Favori butonu kitabı istek listene ekler. Giriş yaptıysan üst menüden İstek Listem sayfasına giderek favorilerini görebilir ve silebilirsin.";
+        }
+        if (containsAny(clean, "destek", "yardim", "yardım", "talep", "sorun", "şikayet", "sikayet")) {
+            return "Destek sayfasından konu ve mesaj yazarak destek talebi oluşturabilirsin. Daha önce açtığın destek talepleri de aynı sayfada listelenir.";
+        }
+        if (containsAny(clean, "profil", "sifre", "şifre", "adres", "telefon")) {
+            return "Giriş yaptıktan sonra Profil sayfasından ad, soyad, e-posta, telefon, adres ve şifre bilgilerini güncelleyebilirsin.";
+        }
+
+        if (isCatalogQuestion(clean)) {
+            return answerCatalogQuestion(clean);
+        }
+
+        return "Bunu net anlayamadım. Sana bu uygulamada kitap bulma, fiyat sorgulama, sepet, ödeme, giriş/kayıt, favoriler, destek ve admin paneli konularında yardımcı olabilirim. İstersen daha açık yaz: '120 TL civarı kitap', 'polisiye öner', 'sepete nasıl eklerim' gibi.";
+    }
+
+    private boolean isCatalogQuestion(String clean) {
+        return extractPriceIntent(clean) != null
+                || detectKeyword(clean) != null
+                || containsAny(clean, "kitap", "oku", "okuma", "okuyayim", "okuyayım", "oner", "öner",
+                "tavsiye", "ucuz", "butce", "butceme", "fiyat", "tl", "lira", "stok", "mevcut",
+                "hediye", "cocuk", "çocuk", "genclik", "yas", "yaş", "baslangic", "başlangıç");
+    }
+
+    private String answerCatalogQuestion(String clean) {
+        List<Book> books = bookFacade.findAll();
+        if (books.isEmpty()) {
+            return "Katalogda henüz kitap bulunmuyor. Kitap eklendiğinde öneri ve fiyat sorgusu yapabilirim.";
+        }
+
+        List<Book> matches = filterBooks(clean, books);
+        String intro = chooseIntro(clean, matches);
+        if (matches.isEmpty()) {
+            return "Bu kritere uygun kitap bulamadım. Farklı bir tür, fiyat veya daha genel bir istek yazabilirsin.";
+        }
+        return formatRecommendation(intro, matches);
+    }
+
     private List<Book> filterBooks(String clean, List<Book> books) {
         PriceIntent priceIntent = extractPriceIntent(clean);
-        if (priceIntent != null) {
-            return books.stream()
-                    .filter(book -> book.getPrice() != null && book.getStockQuantity() > 0)
-                    .filter(book -> matchesPriceIntent(book.getPrice(), priceIntent))
-                    .sorted(priceComparator(priceIntent))
-                    .limit(3)
-                    .toList();
-        }
-
-        if (containsAny(clean, "en iyi", "populer", "öner", "oner", "ne okuyayim", "ne okuyayım", "tavsiye")) {
-            String keyword = detectKeyword(clean);
-            if (keyword != null) {
-                List<Book> searched = bookFacade.searchBooks(keyword);
-                if (!searched.isEmpty()) {
-                    return searched.stream()
-                            .filter(book -> book.getStockQuantity() > 0)
-                            .limit(3)
-                            .toList();
-                }
-            }
-        }
-
-        if (containsAny(clean, "ucuz", "butce", "ekonomik", "fiyat")) {
-            return books.stream()
-                    .filter(book -> book.getPrice() != null && book.getStockQuantity() > 0)
-                    .sorted(Comparator.comparing(Book::getPrice))
-                    .limit(3)
-                    .toList();
-        }
-
         String keyword = detectKeyword(clean);
-        if (keyword != null) {
-            List<Book> searched = bookFacade.searchBooks(keyword);
-            if (!searched.isEmpty()) {
-                return searched.stream()
-                        .filter(book -> book.getStockQuantity() > 0)
-                        .limit(3)
-                        .toList();
-            }
-            return books.stream()
-                    .filter(book -> book.getStockQuantity() > 0)
-                    .filter(book -> matchesCategory(book, keyword) || contains(normalize(book.getDescription()), keyword))
-                    .limit(3)
-                    .toList();
-        }
-
-        if (containsAny(clean, "stok", "var mi", "mevcut")) {
-            return books.stream()
-                    .filter(book -> book.getStockQuantity() > 0)
-                    .sorted(Comparator.comparing(Book::getStockQuantity).reversed())
-                    .limit(3)
-                    .toList();
-        }
 
         return books.stream()
                 .filter(book -> book.getStockQuantity() > 0)
-                .sorted(Comparator.comparing(Book::getPrice, Comparator.nullsLast(BigDecimal::compareTo)))
+                .filter(book -> priceIntent == null || book.getPrice() != null && matchesPriceIntent(book.getPrice(), priceIntent))
+                .filter(book -> keyword == null || matchesBookKeyword(book, keyword))
+                .sorted(bookComparator(priceIntent))
                 .limit(3)
                 .toList();
     }
 
+    private boolean matchesBookKeyword(Book book, String keyword) {
+        String normalizedKeyword = normalize(keyword);
+        return contains(normalize(book.getTitle()), normalizedKeyword)
+                || contains(normalize(book.getDescription()), normalizedKeyword)
+                || matchesCategory(book, keyword);
+    }
+
     private String detectKeyword(String clean) {
         if (containsAny(clean, "polisiye", "gizem")) return "Polisiye";
-        if (containsAny(clean, "cocuk", "cocuklar")) return "Cocuk";
+        if (containsAny(clean, "cocuk", "çocuk", "cocuklar", "çocuklar")) return "Cocuk";
         if (containsAny(clean, "tarih", "historik")) return "Tarih";
         if (containsAny(clean, "felsefe")) return "Felsefe";
         if (containsAny(clean, "klasik")) return "Klasik";
@@ -166,7 +146,7 @@ public class ReadingAssistantBean implements Serializable {
         if (containsAny(clean, "bilim kurgu", "kurgu")) return "Bilim Kurgu";
         if (containsAny(clean, "psikoloji")) return "Psikoloji";
         if (containsAny(clean, "biyografi")) return "Biyografi";
-        if (containsAny(clean, "gelisim", "kisisel")) return "Kisisel Gelisim";
+        if (containsAny(clean, "gelisim", "gelişim", "kisisel", "kişisel")) return "Kisisel Gelisim";
         return null;
     }
 
@@ -175,6 +155,10 @@ public class ReadingAssistantBean implements Serializable {
             return "";
         }
         PriceIntent priceIntent = extractPriceIntent(clean);
+        String keyword = detectKeyword(clean);
+        if (priceIntent != null && keyword != null) {
+            return keyword + " türünde fiyat isteğine uygun kitaplar";
+        }
         if (priceIntent != null) {
             if (priceIntent.mode == PriceMode.EXACT) {
                 return priceIntent.price + " TL fiyatındaki kitaplar";
@@ -182,27 +166,23 @@ public class ReadingAssistantBean implements Serializable {
             if (priceIntent.mode == PriceMode.AROUND) {
                 return priceIntent.price + " TL civarındaki kitaplar";
             }
-            return "Belirttiğin fiyat aralığına uygun öneriler";
+            return "Belirttiğin bütçeye uygun kitaplar";
         }
-        if (containsAny(clean, "ucuz", "butce", "ekonomik", "fiyat")) {
-            return "Bütçene uygun öneriler";
+        if (keyword != null) {
+            return keyword + " türünde öneriler";
         }
-        if (containsAny(clean, "stok", "var mi", "mevcut")) {
-            return "Stokta olan güçlü seçenekler";
+        if (containsAny(clean, "stok", "var mi", "var mı", "mevcut")) {
+            return "Stokta olan kitaplar";
         }
-        return "Soruna göre katalogdan seçtiğim kitaplar";
+        return "Katalogdan seçtiğim kitaplar";
     }
 
     private String formatRecommendation(String title, List<Book> books) {
-        if (books.isEmpty()) {
-            return "Şu an uygun bir kitap bulamadım. Katalogda farklı bir tür ya da fiyat aralığı deneyebilirsin.";
-        }
-
         String recommendations = books.stream()
                 .limit(3)
                 .map(this::formatBook)
                 .collect(Collectors.joining("\n"));
-        return title + ":\n" + recommendations + "\n\nDaha net seçim için alttaki seçeneklerden birine basabilir ya da kendi isteğini yazabilirsin.";
+        return title + ":\n" + recommendations + "\n\nİstersen tür, bütçe veya kullanım amacını biraz daha net yaz; listeyi daraltayım.";
     }
 
     private String formatBook(Book book) {
@@ -229,21 +209,8 @@ public class ReadingAssistantBean implements Serializable {
         return false;
     }
 
-    private boolean containsAny(String value, String... needles) {
-        for (String needle : needles) {
-            if (contains(value, needle)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean contains(String value, String needle) {
-        return value != null && value.contains(normalize(needle));
-    }
-
     private PriceIntent extractPriceIntent(String clean) {
-        if (!containsAny(clean, "tl", "lira", "butce", "butceme", "fiyat", "alti", "altinda", "civari")) {
+        if (!containsAny(clean, "tl", "lira", "butce", "butceme", "bütçe", "bütçeme", "fiyat", "alti", "altı", "altinda", "altında", "civari", "civarı")) {
             return null;
         }
         Matcher matcher = Pattern.compile("(\\d{2,5})").matcher(clean);
@@ -251,10 +218,10 @@ public class ReadingAssistantBean implements Serializable {
             return null;
         }
         BigDecimal price = new BigDecimal(matcher.group(1));
-        if (containsAny(clean, "alti", "altinda", "en fazla", "maksimum", "butce", "butceme")) {
+        if (containsAny(clean, "alti", "altı", "altinda", "altında", "en fazla", "maksimum", "butce", "butceme", "bütçe", "bütçeme")) {
             return new PriceIntent(price, PriceMode.MAX);
         }
-        if (containsAny(clean, "civari", "yaklasik", "yakın", "yakin")) {
+        if (containsAny(clean, "civari", "civarı", "yaklasik", "yaklaşık", "yakın", "yakin")) {
             return new PriceIntent(price, PriceMode.AROUND);
         }
         return new PriceIntent(price, PriceMode.EXACT);
@@ -272,11 +239,27 @@ public class ReadingAssistantBean implements Serializable {
         return bookPrice.compareTo(intent.price) == 0;
     }
 
-    private Comparator<Book> priceComparator(PriceIntent intent) {
-        if (intent.mode == PriceMode.AROUND) {
+    private Comparator<Book> bookComparator(PriceIntent intent) {
+        if (intent != null && intent.mode == PriceMode.AROUND) {
             return Comparator.comparing(book -> book.getPrice().subtract(intent.price).abs());
         }
-        return Comparator.comparing(Book::getPrice);
+        if (intent != null) {
+            return Comparator.comparing(Book::getPrice);
+        }
+        return Comparator.comparing(Book::getTitle, Comparator.nullsLast(String::compareToIgnoreCase));
+    }
+
+    private boolean containsAny(String value, String... needles) {
+        for (String needle : needles) {
+            if (contains(value, needle)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean contains(String value, String needle) {
+        return value != null && value.contains(normalize(needle));
     }
 
     private String normalize(String value) {
@@ -285,12 +268,12 @@ public class ReadingAssistantBean implements Serializable {
         }
         return value.trim()
                 .toLowerCase(Locale.forLanguageTag("tr"))
-                .replace('\u00e7', 'c')
-                .replace('\u011f', 'g')
-                .replace('\u0131', 'i')
-                .replace('\u00f6', 'o')
-                .replace('\u015f', 's')
-                .replace('\u00fc', 'u');
+                .replace('ç', 'c')
+                .replace('ğ', 'g')
+                .replace('ı', 'i')
+                .replace('ö', 'o')
+                .replace('ş', 's')
+                .replace('ü', 'u');
     }
 
     private String safe(String value) {
