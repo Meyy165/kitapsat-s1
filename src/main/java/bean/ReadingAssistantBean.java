@@ -14,11 +14,15 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Named
 @SessionScoped
 public class ReadingAssistantBean implements Serializable {
+    private static final int MAX_MESSAGES = 18;
+
     private String question;
     private String answer = "Merhaba, ben Rafine Asistan. Önce birkaç seçenekten birini seçebilir ya da kendi isteğini yazabilirsin.";
     private List<ChatMessage> messages = new ArrayList<>();
@@ -74,6 +78,16 @@ public class ReadingAssistantBean implements Serializable {
     }
 
     private List<Book> filterBooks(String clean, List<Book> books) {
+        BigDecimal maxPrice = extractMaxPrice(clean);
+        if (maxPrice != null) {
+            return books.stream()
+                    .filter(book -> book.getPrice() != null && book.getStockQuantity() > 0)
+                    .filter(book -> book.getPrice().compareTo(maxPrice) <= 0)
+                    .sorted(Comparator.comparing(Book::getPrice))
+                    .limit(3)
+                    .toList();
+        }
+
         if (containsAny(clean, "en iyi", "populer", "öner", "oner", "ne okuyayim", "ne okuyayım", "tavsiye")) {
             String keyword = detectKeyword(clean);
             if (keyword != null) {
@@ -144,6 +158,9 @@ public class ReadingAssistantBean implements Serializable {
         if (matches.isEmpty()) {
             return "";
         }
+        if (extractMaxPrice(clean) != null) {
+            return "Belirttiğin fiyat aralığına uygun öneriler";
+        }
         if (containsAny(clean, "ucuz", "butce", "ekonomik", "fiyat")) {
             return "Bütçene uygun öneriler";
         }
@@ -202,6 +219,17 @@ public class ReadingAssistantBean implements Serializable {
         return value != null && value.contains(normalize(needle));
     }
 
+    private BigDecimal extractMaxPrice(String clean) {
+        if (!containsAny(clean, "tl", "lira", "butce", "butceme", "fiyat", "alti", "altinda", "civari")) {
+            return null;
+        }
+        Matcher matcher = Pattern.compile("(\\d{2,5})").matcher(clean);
+        if (!matcher.find()) {
+            return null;
+        }
+        return new BigDecimal(matcher.group(1));
+    }
+
     private String normalize(String value) {
         if (value == null) {
             return "";
@@ -222,10 +250,18 @@ public class ReadingAssistantBean implements Serializable {
 
     private void addUserMessage(String text) {
         messages.add(new ChatMessage(text, true));
+        trimMessages();
     }
 
     private void addAssistantMessage(String text) {
         messages.add(new ChatMessage(text, false));
+        trimMessages();
+    }
+
+    private void trimMessages() {
+        while (messages.size() > MAX_MESSAGES) {
+            messages.remove(0);
+        }
     }
 
     public String getQuestion() {

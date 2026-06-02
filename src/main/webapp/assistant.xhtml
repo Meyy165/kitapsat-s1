@@ -1,6 +1,7 @@
 <ui:composition template="/template.xhtml"
                 xmlns:ui="jakarta.faces.facelets"
                 xmlns:h="jakarta.faces.html"
+                xmlns:pt="jakarta.faces.passthrough"
                 xmlns:f="jakarta.faces.core">
     <ui:define name="mainContent">
         <section class="container content-section">
@@ -27,9 +28,8 @@
                             <ui:repeat value="#{readingAssistantBean.quickOptions}" var="option">
                                 <h:commandButton value="#{option}"
                                                  action="#{readingAssistantBean.chooseOption(option)}"
-                                                 styleClass="chat-option">
-                                    <f:ajax execute="@this" render="assistantChat question"/>
-                                </h:commandButton>
+                                                 immediate="true"
+                                                 styleClass="chat-option"/>
                             </ui:repeat>
                         </div>
                     </h:panelGroup>
@@ -39,12 +39,10 @@
                                          value="#{readingAssistantBean.question}"
                                          rows="2"
                                          styleClass="form-control chat-input"
-                                         required="true"/>
+                                         pt:placeholder="Kendi isteğini yaz: örn. 150 TL altı polisiye öner"/>
                         <h:commandButton value="Gönder"
                                          action="#{readingAssistantBean.ask()}"
-                                         styleClass="btn btn-dark chat-send">
-                            <f:ajax execute="@form" render="assistantChat question"/>
-                        </h:commandButton>
+                                         styleClass="btn btn-dark chat-send"/>
                     </div>
                 </h:form>
             </div>
